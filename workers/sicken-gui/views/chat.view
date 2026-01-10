@@ -1,0 +1,83 @@
+<html>
+  <head>
+    <style>
+      body, html {margin: 0px; padding: 0px; background: rgb(32, 34, 39);}
+
+      p {line-break: normal; margin: 0p, padding: 0px;}
+      h1,h2,h3,h4,h5,h6 {margin: 0px; padding: 0px;}
+      ul, ol, li {margin: 0px;}
+      pre {overflow-x: scroll;overflow-y: hidden, width: auto;}
+
+
+      #chat_container {margin: 5px;height: 100%; overflow: auto;padding-bottom: 5px;}
+      .top{background: rgb(43, 45, 49); display: flex; flex-flow: row nowrap; justify-content: left; align-content: left; align-items: left; border-bottom: solid 1px black;border-top:solid 1px black;}
+      .sickens_message_div, .users_message_div {padding: 5px; margin: 5px;margin-bottom: 20px; border-radius: 15px; width: fit-content;max-width: 400px;background: rgb(129,90,156);border: solid 1px rgb(129,90,156)}
+      .sickens_message_div {margin-left: 5px; margin-right: auto; /*background: rgb(129,90,156);border: solid 1px rgb(129,90,156)*/}
+      .system_message_div {margin-left: 5px; margin-right: auto; background: gray;border:margin-bottom: 20px; lightgray;padding: 5px; margin: 5px; width: fit-content;max-width: 700px}
+      .users_message_div {margin-right: 5px; margin-left: auto; /*background: rgb(19,122,127);border: solid 1px rgb(19,122,127)*/}
+      .horizontal_container {min-width: 100%; width: 100%}
+      ::-webkit-scrollbar {width: 10px;height: 10px;}
+      ::-webkit-scrollbar-thumb {background: rgba(90, 90, 90);}
+      ::-webkit-scrollbar-track {background: rgba(0, 0, 0, 0.2);}
+    </style>
+    <script>
+      st=1000;
+      function scroll() {
+        chat_container=document.getElementById('chat_container');
+        chat_container.scrollTop=st;
+        st+=1000;
+      }
+      function add_user_message(message) {
+        horizontal=document.createElement('div');
+        horizontal.classList.add("horizontal_container");
+        users=document.createElement('div');
+        users.classList.add('users_message_div');
+        horizontal.appendChild(users);
+        p=document.createElement('p');
+        p.innerHTML=message;
+        p.classList.add('users_message_p');
+        users.appendChild(p);
+        chat_container=document.getElementById('chat_container').appendChild(horizontal);
+        scroll();
+      }
+
+      function add_sickens_message(message) {
+        horizontal=document.createElement('div');
+        horizontal.classList.add("horizontal_container");
+        sickens=document.createElement('div');
+        sickens.classList.add('sickens_message_div');
+        horizontal.appendChild(sickens);
+        p=document.createElement('p');
+        p.innerHTML=message;
+        p.classList.add('sickens_message_p');
+        sickens.appendChild(p);
+        chat_container=document.getElementById('chat_container').appendChild(horizontal);
+        scroll();
+      }
+
+      function add_system_message(message) {
+        horizontal=document.createElement('div');
+        horizontal.classList.add("horizontal_container");
+        sickens=document.createElement('div');
+        sickens.classList.add('system_message_div');
+        horizontal.appendChild(sickens);
+        p=document.createElement('p');
+        p.innerHTML=message;
+        p.classList.add('system_message_p');
+        sickens.appendChild(p);
+        chat_container=document.getElementById('chat_container').appendChild(horizontal);
+        scroll();
+      }
+
+      addEventListener("resize", onresize);
+      function onresize(e) {
+        document.getElementById('chat_container').style.height=window.innerHeight-40;
+      };
+    </script>
+  </head>
+  <body onload="onresize()">
+    <div id="chat_container">
+    </div>
+  </body>
+</html>
+

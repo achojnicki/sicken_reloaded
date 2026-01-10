@@ -1,0 +1,26 @@
+openai:
+  api_key: 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
+
+sicken:
+  temperature: 0
+  model: gpt-5.1
+  
+  seed: 76
+  frequency_penalty: null
+  presence_penalty: null
+  top_p: null
+  top_logprobs: null
+
+log:
+  debug: false
+
+mongo:
+  host: localhost
+  port: 27017
+  db: sicken
+
+rabbitmq:
+  host: localhost
+  port: 5672
+  user: sicken-classification
+  password: password

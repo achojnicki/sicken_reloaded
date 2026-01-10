@@ -1,0 +1,18 @@
+general:
+    daemonize: false
+    start_workers: true
+
+log:
+    debug: false
+    print_log: true
+    print_log_mode: colorful
+    save_to_file: true
+    #only for the daemon
+    report_to_systemd: true
+
+daemon:
+    pid_file: /opt/sicken/sicken-concurrent.pid
+
+
+scheduler:
+    interval: 0.1

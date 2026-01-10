@@ -1,0 +1,16 @@
+sicken:
+  model: "deepseek-llm:7b"
+  
+log:
+  debug: true
+
+mongo:
+  host: localhost
+  port: 27017
+  db: sicken
+
+rabbitmq:
+  host: localhost
+  port: 5672
+  user: sicken-ollama_llm
+  password: password

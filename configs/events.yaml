@@ -1,0 +1,259 @@
+sicken-agent_server:
+  command_executed:
+    sicken-agent_command_execution_response:
+      command_uuid: command_uuid
+      command: command
+      exit_code: exit_code
+      stdout: stdout
+      stderr: stderr
+      
+  terminal_snapshot:
+    sicken-agent_terminal_snapshot_response:
+      process_uuid: process_uuid
+      command: command
+      terminal_snapshot: terminal_snapshot
+      status: status
+      exit_code: exit_code
+#<------>
+sicken-openai_llm:
+  request_responded:
+    sicken-gui_responses:
+      response_uuid: response_uuid
+      chat_uuid: chat_uuid
+      message_author: message_author
+      message: message
+      speech: speech
+      gesture: gesture
+
+sicken-openai_llm_commands:
+  command_feedback:
+    sicken-gui_commands_feedback:
+      message: message
+      escape: escape
+
+  execute_command:
+    sicken-agent_command_execution_requests:
+      command_uuid: command_uuid
+      command: command
+
+  send_characters:
+    sicken-agent_terminal_characters_requests:
+      process_uuid: process_uuid
+      characters_string: characters_string
+           
+  spawn_process:
+    sicken-agent_spawn_proceses_requests:
+      process_uuid: process_uuid
+      command: command
+
+  lookup_process:
+    sicken-agent_terminal_snapshot_requests:
+      process_uuid: process_uuid
+
+  request_responded:
+    sicken-gui_responses:
+      response_uuid: response_uuid
+      chat_uuid: chat_uuid
+      message_author: message_author
+      message: message
+      speech: speech
+#<------>
+sicken-ollama_llm:
+  request_responded:
+    sicken-speech_requests:
+      response_uuid: response_uuid
+      chat_uuid: chat_uuid
+      message_author: message_author
+      message: message
+      speech: speech
+      gesture: gesture
+
+    sicken-vtube_plugin_speech_requests:
+      response_uuid: response_uuid
+      chat_uuid: chat_uuid
+      message_author: message_author
+      message: message
+      speech: speech
+      gesture: gesture
+
+    sicken-standalone_speech_requests:
+      response_uuid: response_uuid
+      chat_uuid: chat_uuid
+      message_author: message_author
+      message: message
+      speech: speech
+      gesture: gesture
+
+    sicken-gui_responses:
+      response_uuid: response_uuid
+      chat_uuid: chat_uuid
+      message_author: message_author
+      message: message
+      speech: speech
+      gesture: gesture
+
+    sicken-twitch_responses:
+      response_uuid: response_uuid
+      chat_uuid: chat_uuid
+      message_author: message_author
+      message: message
+      speech: speech
+      gesture: gesture
+
+    sicken-webchat_responses:
+      response_uuid: response_uuid
+      chat_uuid: chat_uuid
+      message_author: message_author
+      message: message
+      speech: speech
+      gesture: gesture
+
+    sicken-subtitles:
+      response_uuid: response_uuid
+      chat_uuid: chat_uuid
+      message_author: message_author
+      message: message
+      speech: speech
+      gesture: gesture
+#<------>
+sicken-grok_llm:
+  request_responded:
+    sicken-speech_requests:
+      response_uuid: response_uuid
+      chat_uuid: chat_uuid
+      message_author: message_author
+      message: message
+      speech: speech
+      gesture: gesture
+
+    sicken-vtube_plugin_speech_requests:
+      response_uuid: response_uuid
+      chat_uuid: chat_uuid
+      message_author: message_author
+      message: message
+      speech: speech
+      gesture: gesture
+
+    sicken-standalone_speech_requests:
+      response_uuid: response_uuid
+      chat_uuid: chat_uuid
+      message_author: message_author
+      message: message
+      speech: speech
+      gesture: gesture
+  
+    sicken-gui_responses:
+      response_uuid: response_uuid
+      chat_uuid: chat_uuid
+      message_author: message_author
+      message: message
+      speech: speech
+      gesture: gesture
+
+    sicken-twitch_responses:
+      response_uuid: response_uuid
+      chat_uuid: chat_uuid
+      message_author: message_author
+      message: message
+      speech: speech
+      gesture: gesture
+
+    sicken-webchat_responses:
+      response_uuid: response_uuid
+      chat_uuid: chat_uuid
+      message_author: message_author
+      message: message
+      speech: speech
+      gesture: gesture
+
+    sicken-subtitles:
+      response_uuid: response_uuid
+      chat_uuid: chat_uuid
+      message_author: message_author
+      message: message
+      speech: speech
+      gesture: gesture
+#<------>
+sicken-deepseek_llm:
+  request_responded:
+    sicken-speech_requests:
+      response_uuid: response_uuid
+      chat_uuid: chat_uuid
+      message_author: message_author
+      message: message
+      speech: speech
+      gesture: gesture
+
+    sicken-vtube_plugin_speech_requests:
+      response_uuid: response_uuid
+      chat_uuid: chat_uuid
+      message_author: message_author
+      message: message
+      speech: speech
+      gesture: gesture
+
+    sicken-standalone_speech_requests:
+      response_uuid: response_uuid
+      chat_uuid: chat_uuid
+      message_author: message_author
+      message: message
+      speech: speech
+      gesture: gesture
+
+    sicken-gui_responses:
+      response_uuid: response_uuid
+      chat_uuid: chat_uuid
+      message_author: message_author
+      message: message
+      speech: speech
+      gesture: gesture
+
+    sicken-twitch_responses:
+      response_uuid: response_uuid
+      chat_uuid: chat_uuid
+      message_author: message_author
+      message: message
+      speech: speech
+      gesture: gesture
+      
+    sicken-webchat_responses:
+      response_uuid: response_uuid
+      chat_uuid: chat_uuid
+      message_author: message_author
+      message: message
+      speech: speech
+      gesture: gesture
+
+    sicken-subtitles:
+      response_uuid: response_uuid
+      chat_uuid: chat_uuid
+      message_author: message_author
+      message: message
+      speech: speech
+      gesture: gesture
+
+sicken-gui:
+  message_entered:
+    sicken-response_requests:
+      chat_uuid: chat_uuid
+      message_author: message_author
+      message_source: message_source
+      message: message
+
+    sicken-classification_requests:
+      chat_uuid: chat_uuid
+      message_author: profile_user_name
+      message_source: profile_platform
+      message: message
+
+  command_entered:
+    sicken-command_requests:
+      chat_uuid: chat_uuid
+      message_author: message_author
+      message_source: message_source
+      cmd: cmd
+      args: args
+
+
+
+
