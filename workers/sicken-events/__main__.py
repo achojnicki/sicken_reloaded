@@ -126,7 +126,7 @@ class Events:
 						events.append(self._events.index(event))
 
 					project_event={
-						"project_name": "project_name",
+						"project_name": project_name,
 						"events": events
 					}
 
