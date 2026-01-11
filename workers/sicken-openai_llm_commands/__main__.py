@@ -17,9 +17,6 @@ from uuid import uuid4
 from time import time, sleep
 from threading import Thread, Lock
 
-from IPython import embed
-
-
 
 class OpenAI_LLM:
 	project_name="sicken-openai_llm_commands"
@@ -35,7 +32,6 @@ class OpenAI_LLM:
 			rabbitmq_passwd=self._config.rabbitmq.password,
 			debug=self._config.log.debug,
 			)
-
 
 		self._rabbitmq_conn = BlockingConnection(
 			ConnectionParameters(
