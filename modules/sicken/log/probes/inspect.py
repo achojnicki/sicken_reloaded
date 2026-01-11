@@ -1,9 +1,8 @@
 from inspect import stack, currentframe
 
 class Inspect:
-    @property
-    def caller(self):
-        i=stack()[3]
+    def caller(self, depth):
+        i=stack()[depth]
         resp={"filename":str(i.filename),
               "function": str(i.function),
               "line_number":str(i.lineno)}

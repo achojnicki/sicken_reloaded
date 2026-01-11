@@ -6,6 +6,8 @@ from .probes import Probes
 from pprint import pformat
 from datetime import datetime
 
+import sys
+
 class Log(adislog_methods):
     _time_format="%d/%m/%Y %H:%M:%S"
 
@@ -17,7 +19,8 @@ class Log(adislog_methods):
                  rabbitmq_user=None,
                  rabbitmq_passwd=None,
                  rabbitmq_queue='sicken-logs',
-                 parent=None
+                 parent=None,
+                 catchall=True
                  ):
         self._parent=parent
 
@@ -25,6 +28,9 @@ class Log(adislog_methods):
         self._backends=[]
         self._debug=debug
         
+        if catchall:
+            sys.excepthook=self.exception_hook
+
         
         for a in backends:
             o=None        
@@ -48,7 +54,7 @@ class Log(adislog_methods):
             
 
 
-    def _message(self,log_level:int, log_item, exception_data=None):
+    def _message(self,log_level:int, log_item, exception_data=None, depth=3):
         if log_level >0 or self._debug: 
             time=datetime.now()
 
@@ -83,7 +89,7 @@ class Log(adislog_methods):
                     "ppid": self._probes.ppid,
                     "cwd": self._probes.cwd,
                 },
-                "caller": self._probes.caller,
+                "caller": self._probes.caller(depth),
                 "app_specific":self._probes.parent,
                 "exception_data": exception_data
 
@@ -95,3 +101,5 @@ class Log(adislog_methods):
     def _emit_to_backends(self, msg):
         for backend in self._backends:
             backend.emit(msg)
+
+

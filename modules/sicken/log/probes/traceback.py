@@ -1,11 +1,11 @@
 from sys import exc_info
 from traceback import extract_tb
 
-
 class Traceback:
-    @property
-    def exception(self):
-        ex_type, ex_value, ex_traceback=exc_info()
+    def exception(self, ex_type=None, ex_value=None,ex_traceback=None):
+        if not ex_type and not ex_value and not ex_traceback:
+            ex_type, ex_value, ex_traceback=exc_info()
+
         tb=extract_tb(ex_traceback)
 
         stack=[]

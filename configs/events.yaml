@@ -24,8 +24,41 @@ sicken-openai_llm:
       message: message
       speech: speech
       gesture: gesture
-
+#<------>
 sicken-openai_llm_commands:
+  command_feedback:
+    sicken-gui_commands_feedback:
+      message: message
+      escape: escape
+
+  execute_command:
+    sicken-agent_command_execution_requests:
+      command_uuid: command_uuid
+      command: command
+
+  send_characters:
+    sicken-agent_terminal_characters_requests:
+      process_uuid: process_uuid
+      characters_string: characters_string
+           
+  spawn_process:
+    sicken-agent_spawn_proceses_requests:
+      process_uuid: process_uuid
+      command: command
+
+  lookup_process:
+    sicken-agent_terminal_snapshot_requests:
+      process_uuid: process_uuid
+
+  request_responded:
+    sicken-gui_responses:
+      response_uuid: response_uuid
+      chat_uuid: chat_uuid
+      message_author: message_author
+      message: message
+      speech: speech
+
+sicken-deepseek_llm_commands:
   command_feedback:
     sicken-gui_commands_feedback:
       message: message
@@ -60,55 +93,7 @@ sicken-openai_llm_commands:
 #<------>
 sicken-ollama_llm:
   request_responded:
-    sicken-speech_requests:
-      response_uuid: response_uuid
-      chat_uuid: chat_uuid
-      message_author: message_author
-      message: message
-      speech: speech
-      gesture: gesture
-
-    sicken-vtube_plugin_speech_requests:
-      response_uuid: response_uuid
-      chat_uuid: chat_uuid
-      message_author: message_author
-      message: message
-      speech: speech
-      gesture: gesture
-
-    sicken-standalone_speech_requests:
-      response_uuid: response_uuid
-      chat_uuid: chat_uuid
-      message_author: message_author
-      message: message
-      speech: speech
-      gesture: gesture
-
     sicken-gui_responses:
-      response_uuid: response_uuid
-      chat_uuid: chat_uuid
-      message_author: message_author
-      message: message
-      speech: speech
-      gesture: gesture
-
-    sicken-twitch_responses:
-      response_uuid: response_uuid
-      chat_uuid: chat_uuid
-      message_author: message_author
-      message: message
-      speech: speech
-      gesture: gesture
-
-    sicken-webchat_responses:
-      response_uuid: response_uuid
-      chat_uuid: chat_uuid
-      message_author: message_author
-      message: message
-      speech: speech
-      gesture: gesture
-
-    sicken-subtitles:
       response_uuid: response_uuid
       chat_uuid: chat_uuid
       message_author: message_author
@@ -117,56 +102,8 @@ sicken-ollama_llm:
       gesture: gesture
 #<------>
 sicken-grok_llm:
-  request_responded:
-    sicken-speech_requests:
-      response_uuid: response_uuid
-      chat_uuid: chat_uuid
-      message_author: message_author
-      message: message
-      speech: speech
-      gesture: gesture
-
-    sicken-vtube_plugin_speech_requests:
-      response_uuid: response_uuid
-      chat_uuid: chat_uuid
-      message_author: message_author
-      message: message
-      speech: speech
-      gesture: gesture
-
-    sicken-standalone_speech_requests:
-      response_uuid: response_uuid
-      chat_uuid: chat_uuid
-      message_author: message_author
-      message: message
-      speech: speech
-      gesture: gesture
-  
+  request_responded:  
     sicken-gui_responses:
-      response_uuid: response_uuid
-      chat_uuid: chat_uuid
-      message_author: message_author
-      message: message
-      speech: speech
-      gesture: gesture
-
-    sicken-twitch_responses:
-      response_uuid: response_uuid
-      chat_uuid: chat_uuid
-      message_author: message_author
-      message: message
-      speech: speech
-      gesture: gesture
-
-    sicken-webchat_responses:
-      response_uuid: response_uuid
-      chat_uuid: chat_uuid
-      message_author: message_author
-      message: message
-      speech: speech
-      gesture: gesture
-
-    sicken-subtitles:
       response_uuid: response_uuid
       chat_uuid: chat_uuid
       message_author: message_author
@@ -176,55 +113,7 @@ sicken-grok_llm:
 #<------>
 sicken-deepseek_llm:
   request_responded:
-    sicken-speech_requests:
-      response_uuid: response_uuid
-      chat_uuid: chat_uuid
-      message_author: message_author
-      message: message
-      speech: speech
-      gesture: gesture
-
-    sicken-vtube_plugin_speech_requests:
-      response_uuid: response_uuid
-      chat_uuid: chat_uuid
-      message_author: message_author
-      message: message
-      speech: speech
-      gesture: gesture
-
-    sicken-standalone_speech_requests:
-      response_uuid: response_uuid
-      chat_uuid: chat_uuid
-      message_author: message_author
-      message: message
-      speech: speech
-      gesture: gesture
-
     sicken-gui_responses:
-      response_uuid: response_uuid
-      chat_uuid: chat_uuid
-      message_author: message_author
-      message: message
-      speech: speech
-      gesture: gesture
-
-    sicken-twitch_responses:
-      response_uuid: response_uuid
-      chat_uuid: chat_uuid
-      message_author: message_author
-      message: message
-      speech: speech
-      gesture: gesture
-      
-    sicken-webchat_responses:
-      response_uuid: response_uuid
-      chat_uuid: chat_uuid
-      message_author: message_author
-      message: message
-      speech: speech
-      gesture: gesture
-
-    sicken-subtitles:
       response_uuid: response_uuid
       chat_uuid: chat_uuid
       message_author: message_author
