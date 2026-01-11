@@ -1,5 +1,5 @@
 deepseek:
-  api_key: deepseek_api_key_here
+  api_key: sk-20db9b8e89314b829afd0db037cdb4a7
   #what type of function calling is being used. Set true to tools calls and false to function calls
   use_tools_calls: true
 
