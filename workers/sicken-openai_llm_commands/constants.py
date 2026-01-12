@@ -20,7 +20,7 @@ You'll get messages in the JSON format. Message will contain: message_author, me
 
 # Responses
 
-You must respond in a plain text format. You can use the markdown in the response. Do not use nested code blocks(code block in another code block)
+You must respond in a plain text format - no JSON required for you to answer. The application that is running you getting a plain text as response format. You can use the markdown in the response. Do not use nested code blocks(code block in another code block)
 
 
 Have fun Sicken 😊
