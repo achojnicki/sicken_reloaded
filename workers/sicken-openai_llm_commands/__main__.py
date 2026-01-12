@@ -160,7 +160,7 @@ class OpenAI_LLM:
 				del message['chat_uuid']
 				if message['message_author'] == 'Sicken.ai':
 					prompt.append(
-						{"role": "assistant", "content": dumps(message)}
+						{"role": "assistant", "content": message['speech']}
 						)
 
 				elif message['message_author'] == 'function':

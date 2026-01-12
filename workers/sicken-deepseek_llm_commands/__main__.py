@@ -167,7 +167,7 @@ class DeepSeek_LLM_Commands:
 				del message['chat_uuid']
 				if message['message_author'] == 'Sicken.ai':
 					prompt.append(
-						{"role": "assistant", "content": dumps(message)}
+						{"role": "assistant", "content": message['speech']}
 						)
 
 				elif message['message_author'] == 'function':
@@ -214,7 +214,7 @@ class DeepSeek_LLM_Commands:
 
 	def _get_model_response(self, prompt):
 		try:
-			self._log.info('Calling an OpenAi LLM for response')
+			self._log.info('Calling an DeepSeek LLM for response')
 
 			args={
 				"model":self._config.sicken.model,
@@ -414,13 +414,11 @@ class DeepSeek_LLM_Commands:
 				response_uuid=str(uuid4())
 				prompt=self._build_prompt(chat_uuid=message['chat_uuid'],msg=message)
 				while True:
-					self._log.debug(prompt)
-					self._log.warning(prompt)
+					self._log.info(prompt)
 					response=self._get_model_response(
 						prompt=prompt
 						)
-					self._log.warning(response.dict())
-					self._log.warning(response.content)
+					self._log.info(response.content)
 
 					#embed()
 
