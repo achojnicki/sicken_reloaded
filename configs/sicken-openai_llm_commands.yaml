@@ -1,5 +1,8 @@
 openai:
-  api_key: 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
+  api_key: openai_api_key
+  
+user:
+  admin_username: username
 
 sicken:
   temperature: 1.3

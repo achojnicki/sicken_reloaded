@@ -143,6 +143,8 @@ sicken-gui:
       cmd: cmd
       args: args
 
-
-
-
+sicken-commands:
+  command_feedback:
+    sicken-gui_commands_feedback:
+      message: message
+      escape: escape

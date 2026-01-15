@@ -1,8 +1,10 @@
 deepseek:
-  api_key: sk-20db9b8e89314b829afd0db037cdb4a7
+  api_key: deepseek_api_key
   #what type of function calling is being used. Set true to tools calls and false to function calls
   use_tools_calls: true
 
+user:
+  admin_username: username
 
 sicken:
   temperature: 1.3

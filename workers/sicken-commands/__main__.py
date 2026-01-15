@@ -156,31 +156,9 @@ class Commands:
 					self._events.event(
 						event_name="command_feedback",
 						event_data={
-							"message": "Sicken App by Adrian Chojnicki.<br>Live2D model by Introvert Studio Limited.<br>Sicken is based on an Open Source software.",
+							"message": "Sicken App by Adrian Chojnicki.<br>Sicken is based on an Open Source Software.",
 							"escape": False
 						})
-			if message['cmd'] == 'load_model':
-				if len(message['args'])==1:
-					self._events.event(
-                        event_name="load_model",
-                        event_data={
-                            "model": message['args'][0],
-                          }
-                        )
-			elif message['cmd'] == 'gesture':
-				respone_uuid=str(uuid4())
-				if len(message['args'])==1:
-					self._events.event(
-						event_name="gesture",
-						event_data={
-							"response_uuid": respone_uuid,
-							"chat_uuid": None,
-							"message_author": "Sicken.ai",
-							"message": None,
-							"speech": None,
-							"gesture": message['args'][0]
-						}
-					)
 		except:
 			self._log.exception('Exception occured')
 			raise

@@ -148,7 +148,7 @@ class OpenAI_LLM:
 		try:
 			prompt=[]
 			prompt.append(
-				{"role": "system", "content": SYSTEM_MESSAGE}
+				{"role": "system", "content": SYSTEM_MESSAGE.replace("<__username__>", self._config.user.admin_username)}
 				)
 
 			previous_messages=self._db.get_chat_messages(

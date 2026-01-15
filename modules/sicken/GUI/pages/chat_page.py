@@ -64,7 +64,7 @@ class Chat_Page(wx.Panel):
                         event_name="message_entered",
                         event_data={
                             "chat_uuid": self._root._chat_uuid,
-                            "message_author": "adrianchojnicki",
+                            "message_author": self._root._config.user.username,
                             "message_source": "sicken-gui",
                             "message": msg 
                             }
@@ -75,7 +75,7 @@ class Chat_Page(wx.Panel):
                         event_name="command_entered",
                         event_data={
                             "chat_uuid": self._root._chat_uuid,
-                            "message_author": "adrianchojnicki",
+                            "message_author": self._root._config.user.username,
                             "message_source": "sicken-gui",
                             "cmd": cmd,
                             "args": args

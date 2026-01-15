@@ -13,12 +13,6 @@ sicken-events:
   gid: 7676
 
 # An OpenAI worker for Sicken. To run Sicken, at least one of the worker with suffix _llm have to be on.
-sicken-openai_llm:
-  enable: false
-  workers_count: 1
-  uid: 7676
-  gid: 7676
-
 sicken-openai_llm_commands:
   enable: false
   workers_count: 1
@@ -26,33 +20,12 @@ sicken-openai_llm_commands:
   gid: 7676
 
 # A DeepSeek worker for Sicken. To run Sicken, at least one of the worker with suffix _llm have to be on.
-sicken-deepseek_llm:
-  enable: false
-  workers_count: 1
-  uid: 7676
-  gid: 7676
-
 sicken-deepseek_llm_commands:
   enable: true
   workers_count: 1
   uid: 7676
   gid: 7676
   
-# A Grok worker for Sicken. To run Sicken, at least one of the worker with suffix _llm have to be on.
-sicken-grok_llm:
-  enable: false
-  workers_count: 1
-  uid: 7676
-  gid: 7676
-
-# An Ollama worker for Sicken - still not ready, not recommended to use.
-sicken-ollama_llm:
-  enable: false
-  workers_count: 1
-  uid: 7676
-  gid: 7676
-
-# The Speech Generator for Sicken.
 
 # A GUI for Sicken - to be used with Vtube Studio.
 sicken-gui:

@@ -1,5 +1,8 @@
 log:
     debug: false
+    
+user:
+    username: username
 
 mongo:
     host: localhost
