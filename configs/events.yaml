@@ -6,6 +6,8 @@ sicken-agent_server:
       exit_code: exit_code
       stdout: stdout
       stderr: stderr
+      status: status
+      status_description: status_description
       
   terminal_snapshot:
     sicken-agent_terminal_snapshot_response:

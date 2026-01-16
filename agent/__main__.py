@@ -211,9 +211,11 @@ class sicken_agent:
 			{
 				"command_uuid": command_uuid,
 				"command": cmd,
-				"exit_code":exit_code,
-				"stdout":stdout.decode('utf-8'),
-				"stderr":stderr.decode('utf-8'),
+				"exit_code": exit_code,
+				"stdout": stdout.decode('utf-8'),
+				"stderr": stderr.decode('utf-8'),
+				"status": "Success",
+				"status_description": "Command successfully executed by the agent in the VM."
 			},
 
 			namespace="/")

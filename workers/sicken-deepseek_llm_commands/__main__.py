@@ -7,7 +7,7 @@ from sicken.memories import Memories
 from sicken.knowledge import Knowledge
 from sicken.exceptions import ChatNotFoundException
 
-from constants import SYSTEM_MESSAGE, FUNCTIONS, TOOLS,COMMAND_EXECUTE_REQUEST, COMMAND_EXECUTE_FEEDBACK, SPAWN_PROCESS_FEEDBACK, PROCESS_LOOKUP_FEEDBACK, SLEEP_FEEDBACK, CHARACTERS_FEEDBACK
+from constants import SYSTEM_MESSAGE, FUNCTIONS, TOOLS,COMMAND_EXECUTE_REQUEST, COMMAND_EXECUTE_ERROR, COMMAND_EXECUTE_FEEDBACK, SPAWN_PROCESS_FEEDBACK, PROCESS_LOOKUP_FEEDBACK, SLEEP_FEEDBACK, CHARACTERS_FEEDBACK
 
 from openai import OpenAI
 from pika import BlockingConnection, PlainCredentials, ConnectionParameters
@@ -112,6 +112,9 @@ class DeepSeek_LLM_Commands:
 				self._commands[command_uuid]['exit_code']=message['exit_code']
 				self._commands[command_uuid]['stdout']=message['stdout']
 				self._commands[command_uuid]['stderr']=message['stderr']
+				self._commands[command_uuid]['status']=message['status']
+				self._commands[command_uuid]['status_description']=message['status_description']
+
 
 	def _snapshot_handler(self, channel, method, properties, body):
 		message=loads(body)
@@ -122,35 +125,6 @@ class DeepSeek_LLM_Commands:
 				self._processes[process_uuid]['received']=True
 				self._processes[process_uuid]['terminal_snapshot']=message['terminal_snapshot']
 				
-
-	def _introduction(self, channel, method, properties, body):
-		try:
-			self._log.info('Received model introduction response')
-			message=loads(body)
-			self._log.debug(message)
-
-			if message:
-				self._model_id=message['model_id']
-				self._model_name=message['model_name']
-				self._actions=message['actions']
-				self._gestures_string=self._build_gestures()
-				self._log.success('Model introduction processed successfully')
-		
-		except:
-			self._log.exception('Exception occured')
-			raise
-
-	def _build_gestures(self):
-		try:
-			data=[]
-			for action_name in self._actions:
-				if action_name!="speak":
-					data.append({"gesture_name": action_name, "gesture_description": self._actions[action_name]['description']})
-		except:
-			self._log.exception('Exception occured')
-			raise
-
-		return dumps(data)
 	def _build_prompt(self,chat_uuid, msg=None):
 		try:
 			prompt=[]
@@ -248,7 +222,9 @@ class DeepSeek_LLM_Commands:
 				"command": command,
 				"exit_code": None,
 				"stdout": None,
-				"stderr": None
+				"stderr": None,
+				"status": None,
+				"status_description": None
 			}
 
 		self._events.event(
@@ -338,13 +314,23 @@ class DeepSeek_LLM_Commands:
 				)
 
 
-			self._events.event(
-				event_name="command_feedback",
-				event_data={
-					"message": COMMAND_EXECUTE_FEEDBACK.format(**result),
-					"escape": True
-					}
-				)
+			if result['status'] == 'Success':
+				self._events.event(
+					event_name="command_feedback",
+					event_data={
+						"message": COMMAND_EXECUTE_FEEDBACK.format(**result),
+						"escape": True
+						}
+					)
+			else:
+				self._events.event(
+					event_name="command_feedback",
+					event_data={
+						"message": COMMAND_EXECUTE_ERROR.format(status_description=result['status_description']),
+						"escape": True
+						}
+					)
+
 		elif func_name=="spawn_process":
 			result=self._spawn_process(
 				command=func_args['command']
@@ -354,7 +340,7 @@ class DeepSeek_LLM_Commands:
 				event_name="command_feedback",
 				event_data={
 					"message": SPAWN_PROCESS_FEEDBACK.format(command=func_args['command'], **result),
-					"escape": False
+					"escape": True
 					}
 				)
 
@@ -367,7 +353,7 @@ class DeepSeek_LLM_Commands:
 				event_name="command_feedback",
 				event_data={
 					"message": PROCESS_LOOKUP_FEEDBACK,
-					"escape": False
+					"escape": True
 					}
 				)
 
@@ -377,7 +363,7 @@ class DeepSeek_LLM_Commands:
 				event_name="command_feedback",
 				event_data={
 					"message": SLEEP_FEEDBACK.format(seconds=func_args['seconds']),
-					"escape": False
+					"escape": True
 					}
 				)
 

@@ -235,16 +235,29 @@ class agent_server:
 				"stdout": None,
 				"stderr": None
 			}
-
-		for agent in self._agents:
-			print("sid", self._agents[agent]['sid'])
-			self.socketio.emit(
-				'command_request',
-					{
-					"command_uuid": self._commands[command_uuid]['command_uuid'],
-					"command": self._commands[command_uuid]['command']
-					},
-				to=self._agents[agent]['sid']
+		if self._agents:
+			for agent in self._agents:
+				print("sid", self._agents[agent]['sid'])
+				self.socketio.emit(
+					'command_request',
+						{
+						"command_uuid": self._commands[command_uuid]['command_uuid'],
+						"command": self._commands[command_uuid]['command']
+						},
+					to=self._agents[agent]['sid']
+					)
+		else:
+			self._events.event(
+				event_name="command_executed",
+				event_data={
+					"command_uuid": data['command_uuid'],
+					"command": data['command'],
+					"exit_code": None,
+					"stdout": None,
+					"stderr": None,
+					"status": "Error",
+					"status_description": "No connection with the VM. No agents online." 
+					}
 				)
 
 
@@ -257,8 +270,9 @@ class agent_server:
 				"command": data['command'],
 				"exit_code": data['exit_code'],
 				"stdout": data['stdout'],
-				"stderr": data['stderr']
-				
+				"stderr": data['stderr'],
+				"status": data['status'],
+				"status_description": data['status_description']
 				}
 			)
 
