@@ -3,7 +3,7 @@ from adislog import adislog
 
 from threading import Thread, Event, Lock
 from time import sleep
-from subprocess import Popen, PIPE
+from subprocess import Popen, PIPE, TimeoutExpired
 from os import getpid, kill, read, write, close
 from signal import SIGTERM
 from select import select
@@ -192,6 +192,7 @@ class sicken_agent:
 	def _execute_command(self, data):
 		command_uuid=data['command_uuid']
 		cmd=data['command']
+		timeout=data['timeout']
 		p=Popen(
                 cmd,
                 shell=True,
@@ -199,28 +200,46 @@ class sicken_agent:
                 stderr=PIPE,
                 )
 		self._log.info(f'Execution request received. command_uuid: {command_uuid}, cmd: {cmd} ')
-		stdout, stderr=p.communicate()
-		exit_code=p.returncode
-		if exit_code==0:
-			self._log.success(f"Execution of command succeeded. exit_code: {exit_code}, stdout: {stdout}, stderr: {stderr}")
-		else:
-			self._log.warning(f"A non-zero exit code: {exit_code}. exit_code: {exit_code}, stdout: {stdout}, stderr: {stderr}")
+		try:
+			stdout, stderr=p.communicate(timeout=timeout)
 
-		self._socketio.emit(
-			'command_response',
-			{
-				"command_uuid": command_uuid,
-				"command": cmd,
-				"exit_code": exit_code,
-				"stdout": stdout.decode('utf-8'),
-				"stderr": stderr.decode('utf-8'),
-				"status": "Success",
-				"status_description": "Command successfully executed by the agent in the VM."
-			},
+			exit_code=p.returncode
+			if exit_code==0:
+				self._log.success(f"Execution of command succeeded. exit_code: {exit_code}, stdout: {stdout}, stderr: {stderr}")
+			else:
+				self._log.warning(f"A non-zero exit code: {exit_code}. exit_code: {exit_code}, stdout: {stdout}, stderr: {stderr}")
 
+			self._socketio.emit(
+				'command_response',
+				{
+					"command_uuid": command_uuid,
+					"command": cmd,
+					"exit_code": exit_code,
+					"stdout": stdout.decode('utf-8'),
+					"stderr": stderr.decode('utf-8'),
+					"status": "Success",
+					"status_description": "Command successfully executed by the agent in the VM."
+				},
 			namespace="/")
 
 
+		except TimeoutExpired:
+			p.kill()
+			stdout, stderr=p.communicate()
+			self._log.warning(f"Execuution of command command_uuid:{command_uuid} cmd:{cmd} timeouted.")
+
+			self._socketio.emit(
+				'command_response',
+				{
+					"command_uuid": command_uuid,
+					"command": cmd,
+					"exit_code": exit_code,
+					"stdout": stdout.decode('utf-8'),
+					"stderr": stderr.decode('utf-8'),
+					"status": "Error",
+					"status_description": "Execution of the command got timeout."
+				},
+			namespace="/")
 
 if __name__=="__main__":
 	app=sicken_agent()

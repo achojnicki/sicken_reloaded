@@ -37,6 +37,7 @@ sicken-openai_llm_commands:
     sicken-agent_command_execution_requests:
       command_uuid: command_uuid
       command: command
+      timeout: timeout
 
   send_characters:
     sicken-agent_terminal_characters_requests:
@@ -70,6 +71,7 @@ sicken-deepseek_llm_commands:
     sicken-agent_command_execution_requests:
       command_uuid: command_uuid
       command: command
+      timeout: timeout
 
   send_characters:
     sicken-agent_terminal_characters_requests:

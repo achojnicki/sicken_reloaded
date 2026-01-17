@@ -213,7 +213,7 @@ class DeepSeek_LLM_Commands:
 			raise
 
 
-	def _execute_command(self, command): 
+	def _execute_command(self, command, timeout): 
 		command_uuid=str(uuid4())
 		with self._commands_lock:
 			self._commands[command_uuid]={
@@ -224,7 +224,8 @@ class DeepSeek_LLM_Commands:
 				"stdout": None,
 				"stderr": None,
 				"status": None,
-				"status_description": None
+				"status_description": None,
+				"timeout": timeout
 			}
 
 		self._events.event(
@@ -232,6 +233,7 @@ class DeepSeek_LLM_Commands:
 			event_data={
 				"command_uuid": command_uuid,
 				"command": command,
+				"timeout": timeout
 				}
 			)
 
@@ -310,7 +312,8 @@ class DeepSeek_LLM_Commands:
 					}
 				)
 			result=self._execute_command(
-				command=func_args['command']
+				command=func_args['command'],
+				timeout=func_args['timeout']
 				)
 
 
