@@ -1,39 +1,31 @@
-VTUBE_PLUGIN_SPEECH_PATH:
-  nt: "C:\\sicken\\files\\sicken\\speech"
-  posix: /opt/sicken/files/sicken/speech
-
-VTUBE_PLUGIN_LIVE2D_MODELS_PATH:
-  nt: "C:\\sicken\\live2d_models"
-  posix: /opt/sicken/live2d_models
-
 CONCURRENT_MAIN_CONFIG:
-  nt: "C:\\sicken\\configs\\sicken-concurrent.yaml"
-  posix: '/opt/sicken/configs/sicken-concurrent.yaml'
+  nt: "C:\\sicken_reloaded\\configs\\sicken-concurrent.yaml"
+  posix: '/opt/sicken_reloaded/configs/sicken-concurrent.yaml'
 
 CONCURRENT_WORKERS_CONFIG:
-  nt: "C:\\sicken\\configs\\sicken-concurrent_workers.yaml"
-  posix: /opt/sicken/configs/sicken-concurrent_workers.yaml
+  nt: "C:\\sicken_reloaded\\configs\\sicken-concurrent_workers.yaml"
+  posix: /opt/sicken_reloaded/configs/sicken-concurrent_workers.yaml
 
 CONCURRENT_MAIN_DIRECTORY:
-  nt: "C:\\sicken"
-  posix: /opt/sicken
+  nt: "C:\\sicken_reloaded"
+  posix: /opt/sicken_reloaded
 
 CONCURRENT_WORKERS_DIRECTORY:
-  nt: "C:\\sicken\\workers"
-  posix: /opt/sicken/workers
+  nt: "C:\\sicken_reloaded\\workers"
+  posix: /opt/sicken_reloaded/workers
 
 CONCURRENT_LOGS_DIRECTORY:
-  nt: "C:\\sicken\\logs"
-  posix: /opt/sicken/logs
+  nt: "C:\\sicken_reloaded\\logs"
+  posix: /opt/sicken_reloaded/logs
 
 CONCURRENT_MODULES_DIRECTORY:
-  nt: "C:\\sicken\\modules"
-  posix: /opt/sicken/modules
+  nt: "C:\\sicken_reloaded\\modules"
+  posix: /opt/sicken_reloaded/modules
 
 EVENTS_FILE_PATH:
-  nt: "C:\\sicken\\configs\\events.yaml"
-  posix: /opt/sicken/configs/events.yaml
+  nt: "C:\\sicken_reloaded\\configs\\events.yaml"
+  posix: /opt/sicken_reloaded/configs/events.yaml
 
 COMMANDS_HELP_FILE:
-  nt: "C:\\sicken\\files\\sicken\\commands_help.yaml"
-  posix: /opt/sicken/files/sicken/commands_help.yaml
+  nt: "C:\\sicken_reloaded\\files\\sicken\\commands_help.yaml"
+  posix: /opt/sicken_reloaded/files/sicken/commands_help.yaml

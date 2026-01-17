@@ -14,10 +14,10 @@ class Config:
         self._root=root
 
         if system()== 'Linux' or system()=='Darwin':
-            self._config_path=Path(f"/opt/sicken/configs/{self._root.project_name}.yaml")
+            self._config_path=Path(f"/opt/sicken_reloaded/configs/{self._root.project_name}.yaml")
 
         elif system()=='Windows':
-            self._config_path=Path(f"C:\\\\sicken\\configs\\{self._root.project_name}.yaml")
+            self._config_path=Path(f"C:\\\\sicken_reloaded\\configs\\{self._root.project_name}.yaml")
 
 
         self._load_config()
