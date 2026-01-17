@@ -225,6 +225,7 @@ class sicken_agent:
 
 		except TimeoutExpired:
 			p.kill()
+			p.poll()
 			stdout, stderr=p.communicate()
 			exit_code=p.returncode
 			self._log.warning(f"Execuution of command command_uuid:{command_uuid} cmd:{cmd} timeouted.")
