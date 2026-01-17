@@ -205,7 +205,7 @@ class OpenAI_LLM:
 			raise
 
 
-	def _execute_command(self, command): 
+	def _execute_command(self, command, timeout): 
 		command_uuid=str(uuid4())
 		with self._commands_lock:
 			self._commands[command_uuid]={
@@ -216,7 +216,8 @@ class OpenAI_LLM:
 				"stdout": None,
 				"stderr": None,
 				"status": None,
-				"status_description": None
+				"status_description": None,
+				"timeout": timeout
 			}
 
 		self._events.event(
@@ -224,6 +225,7 @@ class OpenAI_LLM:
 			event_data={
 				"command_uuid": command_uuid,
 				"command": command,
+				"timeout": timeout
 				}
 			)
 
@@ -302,7 +304,8 @@ class OpenAI_LLM:
 					}
 				)
 			result=self._execute_command(
-				command=func_args['command']
+				command=func_args['command'],
+				timeout=func_args['timeout']
 				)
 
 			if result['status'] == 'Success':

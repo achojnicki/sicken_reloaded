@@ -227,13 +227,15 @@ class agent_server:
 	def _command_execution_request(self, channel, method, properties, body):
 		data=loads(body.decode('utf8'))
 		command_uuid=data['command_uuid']
+		timeout=data['timeout']
 		with self._commands_lock:
 			self._commands[data['command_uuid']]={
 				"command_uuid": data['command_uuid'],
 				"command": data["command"],
 				"exitcode": None,
 				"stdout": None,
-				"stderr": None
+				"stderr": None,
+				"timeout": timeout
 			}
 		if self._agents:
 			for agent in self._agents:
@@ -242,7 +244,8 @@ class agent_server:
 					'command_request',
 						{
 						"command_uuid": self._commands[command_uuid]['command_uuid'],
-						"command": self._commands[command_uuid]['command']
+						"command": self._commands[command_uuid]['command'],
+						"timeout": self._commands[command_uuid]['timeout']
 						},
 					to=self._agents[agent]['sid']
 					)

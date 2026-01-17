@@ -29,7 +29,7 @@ Have fun Sicken 😊
 FUNCTIONS = [
     {
         "name": "execute_command",
-        "description": "This tool allows Sicken to execute commands in the VM. This command is useful to execute a non-interactive commands. This tool is perfect for using commands like ls, cat. lscpu, lspci and others where you need the whole output. Works with all operating systems. Do not use commands like cd, as each call of this tool creates a new shell - calls to the shell are not presistent between tool calls.",
+        "description": "This tool allows Sicken to execute commands in the VM. This command is useful to execute a non-interactive commands. This tool is perfect for using commands like ls, cat. lscpu, lspci and others where you need the whole output. Works with all operating systems. Do not use commands like cd, as each call of this tool creates a new shell - calls to the shell are not presistent between tool calls. Warning: This tool do block the execution of the application loop - do not use with commands that require user input to operate",
         "parameters": {
             "type": "object",
             "properties": {
@@ -37,8 +37,12 @@ FUNCTIONS = [
                     "type": "string",
                     "description": "A command to execute."
                 },
+                "timeout": {
+	                	"type": "integer",
+	                	"description": "Time(seconds) before command is killed due to timeout expiration" 
+	                }
             },
-            "required": ["command"]
+            "required": ["command", "timeout"]
         }
     },
     {
@@ -108,7 +112,7 @@ TOOLS = [
     	"type": "function",
     	"function": {
 	        "name": "execute_command",
-	        "description": "This tool allows Sicken to execute commands in the VM. This command is useful to execute a non-interactive commands. This tool is perfect for using commands like ls, cat. lscpu, lspci and others where you need the whole output. Works with all operating systems. Do not use commands like cd, as each call of this tool creates a new shell - calls to the shell are not presistent between tool calls.",
+        	"description": "This tool allows Sicken to execute commands in the VM. This command is useful to execute a non-interactive commands. This tool is perfect for using commands like ls, cat. lscpu, lspci and others where you need the whole output. Works with all operating systems. Do not use commands like cd, as each call of this tool creates a new shell - calls to the shell are not presistent between tool calls. Warning: This tool do block the execution of the application loop - do not use with commands that require user input to operate",
 	        "parameters": {
 	            "type": "object",
 	            "properties": {
@@ -116,8 +120,12 @@ TOOLS = [
 	                    "type": "string",
 	                    "description": "A command to execute."
 	                },
+	                "timeout": {
+	                	"type": "integer",
+	                	"description": "Time(seconds) before command is killed due to timeout expiration" 
+	                }
 	            },
-	            "required": ["command"]
+	            "required": ["command", "timeout"]
 	        }
 	    }
 	},
