@@ -14,6 +14,8 @@ from time import sleep
 import socketio
 import socket
 import pyte
+import psutil
+
 if system()=='Linux' or system()=='Darwin':
 	import pty
 
@@ -226,7 +228,11 @@ class sicken_agent:
 
 		except TimeoutExpired:
 			self._log.warning(f"Execuution of command command_uuid:{command_uuid} cmd:{cmd} timeouted.")
-			p.kill()
+			
+			parent = psutil.Process(p.pid)
+			for child in parent.children(recursive=True): 
+				child.kill()
+			parent.kill()
 
 			while p.poll()==None:
 				sleep(0.1)
