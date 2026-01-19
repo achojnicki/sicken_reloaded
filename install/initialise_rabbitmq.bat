@@ -1,6 +1,6 @@
 @echo off
 
-cd c:\sicken\install
+cd c:\sicken_reloaded\install
 
 echo "Updating \$PATH"
 set PATH=%PATH%;C:\Program Files\RabbitMQ Server\rabbitmq_server-4.1.0\sbin

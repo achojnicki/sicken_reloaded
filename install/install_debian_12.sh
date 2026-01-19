@@ -45,10 +45,10 @@ if [ "$EUID" -ne 0 ]
 fi
 
 print 'Installing Sicken...'
-run cd /opt/sicken
+run cd /opt/sicken_reloaded
 
 print "Updating \$PATH"
-export PATH=$PATH:/sbin:/usr/sbin:/usr/local/sbin:/opt/sicken/install
+export PATH=$PATH:/sbin:/usr/sbin:/usr/local/sbin:/opt/sicken_reloaded/install
 
 print "Updating local APT cache"
 run "apt-get update"

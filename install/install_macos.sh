@@ -40,10 +40,10 @@ logo
 
 
 print 'Installing Sicken...'
-run cd /opt/sicken
+run cd /opt/sicken_reloaded
 
 print "Updating \$PATH"
-export PATH=$PATH:/usr/local/bin:/usr/local/sbin:/opt/sicken/install
+export PATH=$PATH:/usr/local/bin:/usr/local/sbin:/opt/sicken_reloaded/install
 
 
 print "1st stage installation of dependencies"

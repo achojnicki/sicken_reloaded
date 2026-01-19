@@ -40,7 +40,7 @@ logo
 
 
 print 'Installing Sicken...'
-run cd /c/sicken
+run cd /c/sicken_reloaded
 
 
 print "1st stage installation of dependencies(may take a while)"
