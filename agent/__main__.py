@@ -8,6 +8,7 @@ from os import getpid, kill, read, write, close
 from signal import SIGTERM
 from select import select
 from platform import system
+from time import sleep
 
 
 import socketio
@@ -224,11 +225,14 @@ class sicken_agent:
 
 
 		except TimeoutExpired:
+			self._log.warning(f"Execuution of command command_uuid:{command_uuid} cmd:{cmd} timeouted.")
 			p.kill()
-			p.poll()
+
+			while p.poll()==None:
+				sleep(0.1)
+
 			stdout, stderr=p.communicate()
 			exit_code=p.returncode
-			self._log.warning(f"Execuution of command command_uuid:{command_uuid} cmd:{cmd} timeouted.")
 
 			self._socketio.emit(
 				'command_response',
