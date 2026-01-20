@@ -29,7 +29,7 @@ Have fun Sicken 😊
 FUNCTIONS = [
     {
         "name": "execute_command",
-        "description": "This tool allows Sicken to execute commands in the VM. This command is useful to execute a non-interactive commands. This tool is perfect for using commands like ls, cat. lscpu, lspci and others where you need the whole output. Works with all operating systems. Do not use commands like cd, as each call of this tool creates a new shell - calls to the shell are not presistent between tool calls. Warning: This tool do block the execution of the application loop - do not use with commands that require user input to operate",
+        "description": "This tool allows Sicken to execute commands in the VM. This command is useful to execute a non-interactive commands. This tool is perfect for using commands like ls, cat. lscpu, lspci and others where you need the whole output. Works with all operating systems. Do not use commands like cd, as each call of this tool creates a new shell - calls to the shell are not presistent between tool calls. Warning: This tool do block the execution of the application loop - do not use with commands that require user input to operate. Do not use with commands that needs to be running in the background - commands executed with this tool being killed after a timeout - use spawn_process instead.",
         "parameters": {
             "type": "object",
             "properties": {
@@ -47,7 +47,7 @@ FUNCTIONS = [
     },
     {
         "name": "spawn_process",
-        "description": "This tool allows Sicken to execute interactive commands in the VM. This command is useful to execute a interactive commands. To see the output of the process started with this command use the process_lookup tool. Useful for monitoring live commands like top, htop, bmon. Do not use this one for obtaining informations that don't update in time, as there is a risk that due to the terminal size, some informations may be truncated. Works with POSIX operating systems only.",
+        "description": "This tool allows Sicken to execute interactive commands in the VM. This command is useful to execute a interactive commands and commands that needs to be on in the background. To see the output of the process started with this command use the process_lookup tool. Useful for monitoring live commands like top, htop, bmon. Do not use this one for obtaining informations that don't update in time, as there is a risk that due to the terminal size, some informations may be truncated. Works with POSIX operating systems only.",
         "parameters": {
             "type": "object",
             "properties": {
@@ -112,7 +112,7 @@ TOOLS = [
     	"type": "function",
     	"function": {
 	        "name": "execute_command",
-        	"description": "This tool allows Sicken to execute commands in the VM. This command is useful to execute a non-interactive commands. This tool is perfect for using commands like ls, cat. lscpu, lspci and others where you need the whole output. Works with all operating systems. Do not use commands like cd, as each call of this tool creates a new shell - calls to the shell are not presistent between tool calls. Warning: This tool do block the execution of the application loop - do not use with commands that require user input to operate",
+        	"description": "This tool allows Sicken to execute commands in the VM. This command is useful to execute a non-interactive commands. This tool is perfect for using commands like ls, cat. lscpu, lspci and others where you need the whole output. Works with all operating systems. Do not use commands like cd, as each call of this tool creates a new shell - calls to the shell are not presistent between tool calls. Warning: This tool do block the execution of the application loop - do not use with commands that require user input to operate. Do not use with commands that needs to be running in the background - commands executed with this tool being killed after a timeout - use spawn_process instead.",
 	        "parameters": {
 	            "type": "object",
 	            "properties": {
@@ -134,7 +134,7 @@ TOOLS = [
     	"type": "function",
     	"function": {
 	        "name": "spawn_process",
-	        "description": "This tool allows Sicken to execute interactive commands in the VM. This command is useful to execute a interactive commands. To see the output of the process started with this command use the process_lookup tool. Useful for monitoring live commands like top, htop, bmon. Do not use this one for obtaining informations that don't update in time, as there is a risk that due to the terminal size, some informations may be truncated. Works with POSIX operating systems only.",
+        	"description": "This tool allows Sicken to execute interactive commands in the VM. This command is useful to execute a interactive commands and commands that needs to be on in the background. To see the output of the process started with this command use the process_lookup tool. Useful for monitoring live commands like top, htop, bmon. Do not use this one for obtaining informations that don't update in time, as there is a risk that due to the terminal size, some informations may be truncated. Works with POSIX operating systems only.",
 	        "parameters": {
 	            "type": "object",
 	            "properties": {
