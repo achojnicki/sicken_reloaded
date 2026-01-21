@@ -418,7 +418,7 @@ class DeepSeek_LLM_Commands:
 
 					#embed()
 
-					if resp.reasoning_content:
+					if "reasoning_content" in resp and resp.reasoning_content:
 						self._events.event(
 							event_name="request_responded",
 							event_data={
@@ -432,7 +432,10 @@ class DeepSeek_LLM_Commands:
 
 					if not resp.function_call and not resp.tool_calls:
 						response=resp.content
-						reasoning_content=resp.reasoning_content
+						if hasattr(resp, "reasoning_content"):
+							reasoning_content=resp.reasoning_content
+						else:
+							reasoning_content=None
 
 						self._db.add_chat_message(
 							chat_uuid=message['chat_uuid'],
@@ -465,7 +468,7 @@ class DeepSeek_LLM_Commands:
 								message_author='tool_calls',
 								message_source=None,
 								tool_calls=resp.dict()['tool_calls'],
-								reasoning_content=resp.reasoning_content
+								reasoning_content=resp.reasoning_content if hasattr(resp, 'reasoning_content') else None
 								)
 
 						for tool_call in resp.tool_calls:

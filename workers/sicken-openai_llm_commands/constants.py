@@ -39,7 +39,7 @@ FUNCTIONS = [
                 },
                 "timeout": {
 	                	"type": "integer",
-	                	"description": "Time(seconds) before command is killed due to timeout expiration" 
+	                	"description": "Time(seconds) before command is killed due to a timeout expiration" 
 	                }
             },
             "required": ["command", "timeout"]
@@ -93,7 +93,7 @@ FUNCTIONS = [
 	},
     {
         "name": "sleep",
-        "description": "Sleep execution for specified time. Useful for waiting for the data to be populated",
+        "description": "Pause execution for specified time. Useful for waiting for the data to be populated",
         "parameters": {
             "type": "object",
             "properties": {
@@ -122,7 +122,7 @@ TOOLS = [
 	                },
 	                "timeout": {
 	                	"type": "integer",
-	                	"description": "Time(seconds) before command is killed due to timeout expiration" 
+	                	"description": "Time(seconds) before command is killed due to a timeout expiration" 
 	                }
 	            },
 	            "required": ["command", "timeout"]
@@ -189,7 +189,7 @@ TOOLS = [
     	"type": "function",
     	"function": {
 	        "name": "sleep",
-	        "description": "Sleep execution for specified time. Useful for waiting for the data to be populated",
+	        "description": "Pause execution for specified time. Useful for waiting for the data to be populated",
 	        "parameters": {
 	            "type": "object",
 	            "properties": {
@@ -208,5 +208,5 @@ SLEEP_FEEDBACK="Sicken went to sleep for {seconds} seconds."
 COMMAND_EXECUTE_REQUEST="Sicken requested execution of command.\nCommand: {command}"
 COMMAND_EXECUTE_FEEDBACK="Execution of command finished. \nCommand: {command}\nExit Code: {exit_code}\n\nSTDOUT: {stdout}\n\nSTDERR:{stderr}"
 COMMAND_EXECUTE_ERROR="Execution of command failed. {status_description}"
-SPAWN_PROCESS_FEEDBACK="A new process spawned.<br>command: {command}<br>process_uuid: {process_uuid}"
+SPAWN_PROCESS_FEEDBACK="A new process spawned.\ncommand: {command}<\nprocess_uuid: {process_uuid}"
 PROCESS_LOOKUP_FEEDBACK="Sicken looked on a process' terminal"
