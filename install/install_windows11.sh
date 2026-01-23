@@ -88,9 +88,8 @@ echo "press enter after operation is finished"
 
 
 
-run "mkdir /c/sicken/logs"
-run "mkdir /c/sicken/files/sicken/speech"
-run "touch /c/sicken/logs/sicken-concurrent.log"
+run "mkdir /c/sicken_reloaded/logs"
+run "touch /c/sicken_reloaded/logs/sicken-concurrent.log"
 
 print "Installation complete. Run the initialise_rabbitmq.bat file and restart your computer to start using Sicken."
 read nothing
