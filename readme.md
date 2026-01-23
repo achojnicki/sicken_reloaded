@@ -1,5 +1,5 @@
 # Sicken.ai Reloaded
-<a href='https://ko-fi.com/X8X71FY43J' target='_blank'><img height='24' style='border:0px;height:36px;' src='https://storage.ko-fi.com/cdn/kofi6.png?v=6' border='0' alt='Buy Me a Coffee at ko-fi.com' /></a>
+<a href='https://ko-fi.com/X8X71FY43J' target='_blank'><img height='24' style='border:0px;height:24px;' src='https://storage.ko-fi.com/cdn/kofi6.png?v=6' border='0' alt='Buy Me a Coffee at ko-fi.com' /></a>
 
 
 A multi-platform AI assistant with a multi platform agent allowing to execute commands in the VM supporting OpenAI's and DeepSeek models
