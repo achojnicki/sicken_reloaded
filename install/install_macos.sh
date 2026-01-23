@@ -129,12 +129,9 @@ run "rabbitmq-plugins enable rabbitmq_management"
 #print "Pulling Gemma3:4b model(may take a while)"
 #ollama pull gemma3:4b
 
-run "mkdir /opt/sicken/logs"
-run "mkdir /opt/sicken/files"
-run "mkdir /opt/sicken/files/sicken"
-run "mkdir /opt/sicken/files/sicken/speech"
-run "chmod 775 /opt/sicken/files/sicken/speech"
-run "touch /opt/sicken/logs/sicken-concurrent.log"
-run "chmod 775 /opt/sicken/logs/sicken-concurrent.log"
+run "mkdir /opt/sicken_reloaded/logs"
+run "mkdir /opt/sicken_reloaded/files"
+run "touch /opt/sicken_reloaded/logs/sicken-concurrent.log"
+run "chmod 666 /opt/sicken_reloaded/logs/sicken-concurrent.log"
 
 print "Installation complete"   
