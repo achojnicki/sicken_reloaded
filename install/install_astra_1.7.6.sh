@@ -100,6 +100,7 @@ run "rabbitmqctl add_user sicken-deepseek_llm password"
 run "rabbitmqctl add_user sicken-grok_llm password"
 run "rabbitmqctl add_user sicken-classification password"
 run "rabbitmqctl add_user sicken-commands password"
+run "rabbitmqctl add_user sicken-agent password"
 
 
 run "rabbitmqctl add_user admin sicken"
@@ -116,6 +117,7 @@ rabbitmqctl set_permissions -p / sicken-grok_llm ".*" ".*" ".*"
 rabbitmqctl set_permissions -p / sicken-gui ".*" ".*" ".*"
 rabbitmqctl set_permissions -p / sicken-classification ".*" ".*" ".*"
 rabbitmqctl set_permissions -p / sicken-commands ".*" ".*" ".*"
+rabbitmqctl set_permissions -p / sicken-agent ".*" ".*" ".*"
 rabbitmqctl set_permissions -p / admin ".*" ".*" ".*"
 
 rabbitmqctl set_topic_permissions sicken-logs "" ".*" ".*"
@@ -127,6 +129,7 @@ rabbitmqctl set_topic_permissions sicken-grok_llm "" ".*" ".*"
 rabbitmqctl set_topic_permissions sicken-gui "" ".*" ".*"
 rabbitmqctl set_topic_permissions sicken-classification "" ".*" ".*"
 rabbitmqctl set_topic_permissions sicken-commands "" ".*" ".*"
+rabbitmqctl set_topic_permissions sicken-agent "" ".*" ".*"
 rabbitmqctl set_topic_permissions admin "" ".*" ".*"
 
 print 'Creating RabbitMQ Queues'
@@ -143,6 +146,7 @@ run 'python3.11 ./create_queue_astra.py sicken-agent_command_execution_requests'
 run 'python3.11 ./create_queue_astra.py sicken-agent_command_execution_response'
 run 'python3.11 ./create_queue_astra.py sicken-agent_spawn_proceses_requests'
 run 'python3.11 ./create_queue_astra.py sicken-agent_terminal_characters_requests'
+run 'python3.11 ./create_queue_astra.py sicken-agent_terminal_snapshot_requests'
 run 'python3.11 ./create_queue_astra.py sicken-agent_terminal_snapshot_response'
 
 

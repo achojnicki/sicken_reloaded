@@ -25,7 +25,7 @@
       function scroll() {
         chat_container=document.getElementById('chat_container');
         chat_container.scrollTop=st;
-        st+=1000;
+        st+=100000;
       }
       function add_user_message(message) {
         horizontal=document.createElement('div');
