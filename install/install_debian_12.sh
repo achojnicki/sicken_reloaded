@@ -154,6 +154,7 @@ rabbitmqctl set_topic_permissions sicken-grok_llm "" ".*" ".*"
 rabbitmqctl set_topic_permissions sicken-gui "" ".*" ".*"
 rabbitmqctl set_topic_permissions sicken-classification "" ".*" ".*"
 rabbitmqctl set_topic_permissions sicken-commands "" ".*" ".*"
+rabbitmqctl set_topic_permissions sicken-agent "" ".*" ".*"
 rabbitmqctl set_topic_permissions admin "" ".*" ".*"
 
 print 'Creating RabbitMQ Queues'
@@ -206,7 +207,6 @@ run "rabbitmq-plugins enable rabbitmq_management"
 
 run "mkdir /opt/sicken_reloaded/logs"
 run "mkdir /opt/sicken_reloaded/files"
-run "chmod -R 777 /opt/sicken_reloaded/bin "
 run "touch /opt/sicken_reloaded/logs/sicken-concurrent.log"
 run "chmod 666 /opt/sicken_reloaded/logs/sicken-concurrent.log"
 
