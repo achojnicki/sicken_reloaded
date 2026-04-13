@@ -57,7 +57,7 @@ print "1st stage installation of dependencies(may take a while)"
 run "apt-get install curl gnupg apt-transport-https python3 python3-pip nginx curl dpkg-dev build-essential libjpeg-dev libtiff-dev libsdl1.2-dev libgstreamer-plugins-base1.0-dev libnotify-dev freeglut3-dev libsm-dev libgtk-3-dev libwebkit2gtk-4.0-dev libxtst-dev libsdl2-dev ffmpeg -y"
 
 print "2nd stage installation of dependencies(may take a while)"
-run "python3.11 -m pip install numpy openai flask flask-socketio python-socketio psutil tabulate colored pymongo pyyaml pika uwsgi websockets wxpython mistune eventlet"
+run "python3.11 -m pip install --break-system-packages numpy openai flask flask-socketio python-socketio psutil tabulate colored pymongo pyyaml pika uwsgi websockets wxpython mistune eventlet"
 
 print "Downloading and instaling MongoDB key"
 curl -fsSL https://www.mongodb.org/static/pgp/server-8.0.asc | gpg --dearmor -o /usr/share/keyrings/mongodb-server-8.0.gpg
@@ -158,21 +158,22 @@ rabbitmqctl set_topic_permissions sicken-agent "" ".*" ".*"
 rabbitmqctl set_topic_permissions admin "" ".*" ".*"
 
 print 'Creating RabbitMQ Queues'
-run 'create_queue.py sicken-events'
-run 'create_queue.py sicken-logs'
-run 'create_queue.py sicken-response_requests'
-run 'create_queue.py sicken-gui_responses'
-run 'create_queue.py sicken-gui_logs'
-run 'create_queue.py sicken-classification_requests'
-run 'create_queue.py sicken-command_requests'
-run 'create_queue.py sicken-command_feedback'
-run 'create_queue.py sicken-gui_commands_feedback'
-run 'create_queue.py sicken-agent_command_execution_requests'
-run 'create_queue.py sicken-agent_command_execution_response'
-run 'create_queue.py sicken-agent_spawn_proceses_requests'
-run 'create_queue.py sicken-agent_terminal_characters_requests'
-run 'create_queue.py sicken-agent_terminal_snapshot_requests'
-run 'create_queue.py sicken-agent_terminal_snapshot_response'
+run 'python3.11 ./create_queue_astra.py sicken-events'
+run 'python3.11 ./create_queue_astra.py sicken-logs'
+run 'python3.11 ./create_queue_astra.py sicken-response_requests'
+run 'python3.11 ./create_queue_astra.py sicken-gui_responses'
+run 'python3.11 ./create_queue_astra.py sicken-gui_logs'
+run 'python3.11 ./create_queue_astra.py sicken-classification_requests'
+run 'python3.11 ./create_queue_astra.py sicken-command_requests'
+run 'python3.11 ./create_queue_astra.py sicken-command_feedback'
+run 'python3.11 ./create_queue_astra.py sicken-gui_commands_feedback'
+run 'python3.11 ./create_queue_astra.py sicken-agent_command_execution_requests'
+run 'python3.11 ./create_queue_astra.py sicken-agent_command_execution_response'
+run 'python3.11 ./create_queue_astra.py sicken-agent_spawn_proceses_requests'
+run 'python3.11 ./create_queue_astra.py sicken-agent_terminal_characters_requests'
+run 'python3.11 ./create_queue_astra.py sicken-agent_terminal_snapshot_requests'
+run 'python3.11 ./create_queue_astra.py sicken-agent_terminal_snapshot_response'
+
 
 
 

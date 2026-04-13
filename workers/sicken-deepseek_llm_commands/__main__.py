@@ -17,8 +17,6 @@ from uuid import uuid4
 from time import time, sleep
 from threading import Thread, Lock
 
-from IPython import embed
-
 
 
 class DeepSeek_LLM_Commands:
