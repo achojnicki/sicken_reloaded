@@ -3,6 +3,7 @@ from sicken.log import Log
 from sicken.GUI.GUI import Sicken_GUI
 from sicken.events import events
 from sicken.DB import DB
+from sicken.paths import Paths
 
 from pika import BlockingConnection, PlainCredentials, ConnectionParameters
 from uuid import uuid4
@@ -31,6 +32,7 @@ class Sicken:
 
 		self._events=events(self)
 		self._db=DB(self)
+		self._paths=Paths()
 
 		self._sicken_gui=Sicken_GUI(self)
 		self._chat_uuid=str(uuid4())

@@ -29,3 +29,7 @@ EVENTS_FILE_PATH:
 COMMANDS_HELP_FILE:
   nt: "C:\\sicken_reloaded\\files\\sicken\\commands_help.yaml"
   posix: /opt/sicken_reloaded/files/sicken/commands_help.yaml
+
+VIEWS_DIR:
+  nt: "C:\\sicken_reloaded\\files\\sicken\\views"
+  posix: "/opt/sicken_reloaded/files/sicken/views"

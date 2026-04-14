@@ -1,5 +1,5 @@
 from html import escape
-
+from pathlib import Path
 import wx
 import wx.html2
 import wx.stc
@@ -15,7 +15,9 @@ class Chat_Page(wx.Panel):
         self._chat_uuid=None
         self._user_uuid=None
 
-        self.chat_template=open("views/chat.view",'r').read()
+        self._view_path=Path(self._root._paths('VIEWS_DIR')).joinpath('gui').joinpath('chat.view')
+
+        self.chat_template=open(self._view_path,'r').read()
         self.sizer=wx.BoxSizer(wx.VERTICAL)        
 
         self.html=wx.html2.WebView.New(self)
