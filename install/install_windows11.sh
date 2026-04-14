@@ -83,8 +83,8 @@ export user=`whoami`
 export p=/c/Users/$user/.erlang.cookie
 rm -f $p
 echo "Open a Windows File Explorer and navigate to the folder C:\\Windows\\System32\\config\\systemprofile. Next copy the .erlang.cookie file to your profile folder(C:\\Users\\Adrian for user named Adrian.)"
+echo "Press enter after operation is finished"
 read nothing
-echo "press enter after operation is finished"
 
 
 
