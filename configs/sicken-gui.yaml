@@ -4,6 +4,10 @@ log:
 user:
     username: username
 
+chat:
+    allow_inspect: false
+    allow_context_menu: false
+
 mongo:
     host: localhost
     port: 27017
