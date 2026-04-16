@@ -414,9 +414,9 @@ class DeepSeek_LLM_Commands:
 						)
 					self._log.info(resp)
 
-					#embed()
 
-					if "reasoning_content" in resp and resp.reasoning_content:
+					if hasattr(resp,"reasoning_content") and resp.reasoning_content:
+						self._log.success('reasoning found')
 						self._events.event(
 							event_name="request_responded",
 							event_data={

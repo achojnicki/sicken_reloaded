@@ -91,5 +91,5 @@ read nothing
 run "mkdir /c/sicken_reloaded/logs"
 run "touch /c/sicken_reloaded/logs/sicken-concurrent.log"
 
-print "Installation complete. Run the initialise_rabbitmq.bat file and restart your computer to start using Sicken."
+print "Installation complete. Run the initialise_rabbitmq.bat file to start using Sicken."
 read nothing

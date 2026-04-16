@@ -15,7 +15,7 @@ mongo_classification_gropus=mongo_db['classification_groups']
 
 
 
-with open('/opt/sicken/files/sicken/classifications.yaml' if system()=='Linux' or system()=='Darwin' else 'C:\\sicken\\files\\sicken\\classifications.yaml' ,'r') as file:
+with open('/opt/sicken_reloaded/files/sicken/classifications.yaml' if system()=='Linux' or system()=='Darwin' else 'C:\\sicken_reloaded\\files\\sicken\\classifications.yaml' ,'r') as file:
     data=yaml.safe_load(file.read())
 
 new_data={}
