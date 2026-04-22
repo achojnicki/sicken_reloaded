@@ -1,7 +1,7 @@
 agent_server:
   host: 10.0.0.150
   port: 9999
-  secret: 3dgawetsdagasdgsda
+  secret: asgafgfadsgdafgrearygtaerhtsaerhsrdhgbsdrgsdgr
 
 log:
   debug: true

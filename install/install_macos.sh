@@ -50,7 +50,7 @@ print "1st stage installation of dependencies"
 run "brew install python@3.12 ffmpeg"
 
 print "2nd stage installation of dependencies"
-run "/usr/local/bin/python3.12 -m pip install --break-system-packages numpy eventlet openai flask flask-socketio python-socketio psutil tabulate colored pymongo pyyaml pika uwsgi websockets pyobjc wxpython mistune eventlet"
+run "/usr/local/bin/python3.12 -m pip install --break-system-packages numpy eventlet openai flask flask-socketio python-socketio psutil tabulate colored pymongo pyyaml pika uwsgi websockets pyobjc wxpython mistune eventlet firecrawl"
 
 
 print "Installing MongoDB database"
@@ -81,6 +81,7 @@ run "rabbitmqctl add_user sicken-grok_llm password"
 run "rabbitmqctl add_user sicken-classification password"
 run "rabbitmqctl add_user sicken-commands password"
 run "rabbitmqctl add_user sicken-agent password"
+run "rabbitmqctl add_user sicken-web_worker password"
 run "rabbitmqctl add_user admin sicken"
 
 
@@ -96,6 +97,7 @@ rabbitmqctl set_permissions -p / sicken-gui ".*" ".*" ".*"
 rabbitmqctl set_permissions -p / sicken-classification ".*" ".*" ".*"
 rabbitmqctl set_permissions -p / sicken-commands ".*" ".*" ".*"
 rabbitmqctl set_permissions -p / sicken-agent ".*" ".*" ".*"
+rabbitmqctl set_permissions -p / sicken-web_worker ".*" ".*" ".*"
 rabbitmqctl set_permissions -p / admin ".*" ".*" ".*"
 
 rabbitmqctl set_topic_permissions sicken-logs "" ".*" ".*"
@@ -108,6 +110,7 @@ rabbitmqctl set_topic_permissions sicken-gui "" ".*" ".*"
 rabbitmqctl set_topic_permissions sicken-classification "" ".*" ".*"
 rabbitmqctl set_topic_permissions sicken-commands "" ".*" ".*"
 rabbitmqctl set_topic_permissions sicken-agent "" ".*" ".*"
+rabbitmqctl set_topic_permissions sicken-web_worker "" ".*" ".*"
 rabbitmqctl set_topic_permissions admin "" ".*" ".*"
 
 print 'Creating RabbitMQ Queues'
@@ -126,7 +129,10 @@ run '/usr/local/bin/python3.12 create_queue.py sicken-agent_spawn_proceses_reque
 run '/usr/local/bin/python3.12 create_queue.py sicken-agent_terminal_characters_requests'
 run '/usr/local/bin/python3.12 create_queue.py sicken-agent_terminal_snapshot_response'
 run '/usr/local/bin/python3.12 create_queue.py sicken-agent_terminal_snapshot_requests'
-
+run '/usr/local/bin/python3.12 sicken-search_requests'
+run '/usr/local/bin/python3.12 sicken-search_feedback'
+run '/usr/local/bin/python3.12 sicken-scrape_requests'
+run '/usr/local/bin/python3.12 sicken-scrape_feedback'
 
 print "Enable RabbitMQ Managment plugin"
 run "rabbitmq-plugins enable rabbitmq_management"

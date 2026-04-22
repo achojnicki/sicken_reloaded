@@ -1,6 +1,7 @@
 sicken_agent:
   server_addr: 10.1.1.1
   server_port: 9999
+  kill_on_timeout: False
 
 terminal:
   cols: 80

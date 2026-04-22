@@ -1,3 +1,18 @@
+sicken-web_worker:
+  scrape_feedback:
+    sicken-scrape_feedback:
+      scrape_status: scrape_status
+      scrape_uuid: scrape_uuid
+      scrape_url: scrape_url
+      scrape_result: scrape_result
+
+  search_feedback:
+    sicken-search_feedback:
+      search_uuid: search_uuid
+      search_query: search_query
+      search_results_limit: search_results_limit
+      search_results: search_results
+
 sicken-agent_server:
   command_executed:
     sicken-agent_command_execution_response:
@@ -62,6 +77,17 @@ sicken-openai_llm_commands:
       speech: speech
 
 sicken-deepseek_llm_commands:
+  search:
+    sicken-search_requests:
+      search_uuid: search_uuid
+      search_query: search_query
+      search_results_limit: search_results_limit
+
+  scrape:
+    sicken-scrape_requests:
+      scrape_uuid: scrape_uuid
+      scrape_url: scrape_url
+
   command_feedback:
     sicken-gui_commands_feedback:
       message: message

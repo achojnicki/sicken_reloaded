@@ -4,12 +4,12 @@ from adislog import adislog
 from threading import Thread, Event, Lock
 from time import sleep
 from subprocess import Popen, PIPE, TimeoutExpired
-from os import getpid, kill, read, write, close
+from os import getpid, kill, read, write, close, mkdir, chdir
 from signal import SIGTERM
 from select import select
 from platform import system
 from time import sleep
-
+from uuid import uuid4
 
 import socketio
 import socket
@@ -43,6 +43,9 @@ class sicken_agent:
 		self._processes={}
 		self._processes_lock=Lock()
 
+		self._session_uuid=str(uuid4())
+		mkdir(f'/tmp/sicken_{self._session_uuid}')
+		chdir(f'/tmp/sicken_{self._session_uuid}')
 
 	def spawn_process(self, data):
 		self._log.info(f'Spawning new process. process_uuid: {data["process_uuid"]}, command: {data["command"]}')
@@ -126,7 +129,7 @@ class sicken_agent:
 	def _send_string(self, process_uuid, characters_string):
 		if process_uuid in self._processes:
 			process=self._processes[process_uuid]
-			characters_string=characters_string.encode('utf-8')
+			characters_string=characters_string.replace('\\n','\n').replace('\\r','\r').replace('\\t','\t').encode('utf-8')
 			with process['terminal_lock']:
 				write(process['pty_master_fd'], characters_string)
 
@@ -229,16 +232,21 @@ class sicken_agent:
 		except TimeoutExpired:
 			self._log.warning(f"Execuution of command command_uuid:{command_uuid} cmd:{cmd} timeouted.")
 			
-			parent = psutil.Process(p.pid)
-			for child in parent.children(recursive=True): 
-				child.kill()
-			parent.kill()
+			if self._config.sicken_agent.kill_on_timeout:
+				parent = psutil.Process(p.pid)
+				for child in parent.children(recursive=True): 
+					child.kill()
+				parent.kill()
 
-			while p.poll()==None:
-				sleep(0.1)
+				while p.poll()==None:
+					sleep(0.1)
 
-			stdout, stderr=p.communicate()
-			exit_code=p.returncode
+				stdout, stderr=p.communicate()
+				exit_code=p.returncode
+			else:
+				stdout=None
+				stderr=None
+				exit_code=None
 
 			self._socketio.emit(
 				'command_response',

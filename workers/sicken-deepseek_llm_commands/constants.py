@@ -22,186 +22,264 @@ You'll get messages in the JSON format. Message will contain: message_author, me
 
 You must respond in a plain text format - no JSON required for you to answer. The application that is running you getting a plain text as response format. You can use the markdown in the response. Do not use nested code blocks(code block in another code block)
 
+# Commands
+
+When executing commands, try to use those with lesser output(eg. gobuster instead of dirb) and try to save tokens to make sure you can run for longer time.
+When using a ftp command in the interactive mode(with a spawn_process tool), to log in you need to provide login and password separated by a space to log in.
+Avoid using wfuzz as it gives massive output making you running out tokens.
+Use sshpass instead of ssh.
 
 Have fun Sicken 😊
 """
 
 FUNCTIONS = [
-    {
-        "name": "execute_command",
-        "description": "This tool allows Sicken to execute commands in the VM. This command is useful to execute a non-interactive commands. This tool is perfect for using commands like ls, cat. lscpu, lspci and others where you need the whole output. Works with all operating systems. Do not use commands like cd, as each call of this tool creates a new shell - calls to the shell are not presistent between tool calls. Warning: This tool do block the execution of the application loop - do not use with commands that require user input to operate. Do not use with commands that needs to be running in the background - commands executed with this tool being killed after a timeout - use spawn_process instead.",
-        "parameters": {
-            "type": "object",
-            "properties": {
-                "command": {
-                    "type": "string",
-                    "description": "A command to execute."
-                },
-                "timeout": {
-	                	"type": "integer",
-	                	"description": "Time(seconds) before command is killed due to a timeout expiration" 
-	                }
-            },
-            "required": ["command", "timeout"]
-        }
-    },
-    {
-        "name": "spawn_process",
-        "description": "This tool allows Sicken to execute interactive commands in the VM. This command is useful to execute a interactive commands and commands that needs to be on in the background. To see the output of the process started with this command use the process_lookup tool. Useful for monitoring live commands like top, htop, bmon. Do not use this one for obtaining informations that don't update in time, as there is a risk that due to the terminal size, some informations may be truncated. Works with POSIX operating systems only.",
-        "parameters": {
-            "type": "object",
-            "properties": {
-                "command": {
-                    "type": "string",
-                    "description": "A command to execute."
-                },
-            },
-            "required": ["command"]
-        }
-    },
-    {
-        "name": "lookup_process",
-        "description": "This tools allows Sicken to get a current snapshot of the running process' terminal session.",
-        "parameters": {
-            "type": "object",
-            "properties": {
-                "process_uuid": {
-                    "type": "string",
-                    "description": "A process uuid of the command spawned with a spawn_process tool to lookup."
-                },
-            },
-            "required": ["process_uuid"]
-        }
-    },
-    {
-	    "name": "send_process_characters",
-	    "description": "This tools allows Sicken to interact with the running process' terminal session.",
-	    "parameters": {
-	        "type": "object",
-	        "properties": {
-	            "characters_string": {
-	                "type": "string",
-	                "description": "Characters to be sent on the process' stdin. Accepts characters and escape codes"
-	            },
-	            "process_uuid": {
-	                "type": "string",
-	                "description": "A process uuid of the command spawned with a spawn_process tool to send characters to."
-	            },
-	        },
-	        "required": ["process_uuid","characters_string"]
-	    }
+	{
+		"name": "execute_command",
+		"description": "This tool allows Sicken to execute commands in the VM. This command is useful to execute a non-interactive commands. This tool is perfect for using commands like ls, cat. lscpu, lspci and others where you need the whole output. Works with all operating systems. Do not use commands like cd, as each call of this tool creates a new shell - calls to the shell are not presistent between tool calls. Warning: This tool do block the execution of the application loop - do not use with commands that require user input to operate. Do not use with commands that needs to be running in the background - commands executed with this tool being killed after a timeout - use spawn_process instead.",
+		"parameters": {
+			"type": "object",
+			"properties": {
+				"command": {
+					"type": "string",
+					"description": "A command to execute."
+				},
+				"timeout": {
+						"type": "integer",
+						"description": "Time(seconds) before command is killed due to a timeout expiration" 
+					}
+			},
+			"required": ["command", "timeout"]
+		}
 	},
-    {
-        "name": "sleep",
-        "description": "Pause execution for specified time. Useful for waiting for the data to be populated",
-        "parameters": {
-            "type": "object",
-            "properties": {
-                "seconds": {
-                    "type": "integer",
-                    "description": "A number of seconds to sleep for."
-                },
-            },
-            "required": ["seconds"]
-        }
-    },
+	{
+		"name": "spawn_process",
+		"description": "This tool allows Sicken to execute interactive commands in the VM. This command is useful to execute a interactive commands and commands that needs to be on in the background. To see the output of the process started with this command use the process_lookup tool. Useful for monitoring live commands like top, htop, bmon. Do not use this one for obtaining informations that don't update in time, as there is a risk that due to the terminal size, some informations may be truncated. Works with POSIX operating systems only.",
+		"parameters": {
+			"type": "object",
+			"properties": {
+				"command": {
+					"type": "string",
+					"description": "A command to execute."
+				},
+			},
+			"required": ["command"]
+		}
+	},
+	{
+		"name": "lookup_process",
+		"description": "This tools allows Sicken to get a current snapshot of the running process' terminal session.",
+		"parameters": {
+			"type": "object",
+			"properties": {
+				"process_uuid": {
+					"type": "string",
+					"description": "A process uuid of the command spawned with a spawn_process tool to lookup."
+				},
+			},
+			"required": ["process_uuid"]
+		}
+	},
+	{
+		"name": "send_process_characters",
+		"description": "This tools allows Sicken to interact with the running process' terminal session.",
+		"parameters": {
+			"type": "object",
+			"properties": {
+				"characters_string": {
+					"type": "string",
+					"description": "Characters to be sent on the process' stdin. Accepts characters and escape codes"
+				},
+				"process_uuid": {
+					"type": "string",
+					"description": "A process uuid of the command spawned with a spawn_process tool to send characters to."
+				},
+			},
+			"required": ["process_uuid","characters_string"]
+		}
+	},
+	{
+		"name": "sleep",
+		"description": "Pause execution for specified time. Useful for waiting for the data to be populated",
+		"parameters": {
+			"type": "object",
+			"properties": {
+				"seconds": {
+					"type": "integer",
+					"description": "A number of seconds to sleep for."
+				},
+			},
+			"required": ["seconds"]
+		}
+	},
+	{
+		"name": "search_web",
+		"description": "Search web",
+		"parameters": {
+			"type": "object",
+			"properties": {
+				"search_query": {
+					"type": "string",
+					"description": "A query to search."
+				},
+				"search_results_limit":{
+					"type": "integer",
+					"description": "number of results shown in the search."
+				},
+			},
+			"required": ["search_query", "search_results_limit"]
+		}
+	},
+	{
+		"name": "scrape_webpage",
+		"description": "Scrape a webpage and receive it in markdown format.",
+		"parameters": {
+			"type": "object",
+			"properties": {
+				"scrape_url": {
+					"type": "string",
+					"description": "A query url to scrape"
+				},
+			},
+			"required": ["scrape_url"]
+		}
+	},
 ]
 
 TOOLS = [
-    {
-    	"type": "function",
-    	"function": {
-	        "name": "execute_command",
-        	"description": "This tool allows Sicken to execute commands in the VM. This command is useful to execute a non-interactive commands. This tool is perfect for using commands like ls, cat. lscpu, lspci and others where you need the whole output. Works with all operating systems. Do not use commands like cd, as each call of this tool creates a new shell - calls to the shell are not presistent between tool calls. Warning: This tool do block the execution of the application loop - do not use with commands that require user input to operate. Do not use with commands that needs to be running in the background - commands executed with this tool being killed after a timeout - use spawn_process instead.",
-	        "parameters": {
-	            "type": "object",
-	            "properties": {
-	                "command": {
-	                    "type": "string",
-	                    "description": "A command to execute."
-	                },
-	                "timeout": {
-	                	"type": "integer",
-	                	"description": "Time(seconds) before command is killed due to a timeout expiration" 
-	                }
-	            },
-	            "required": ["command", "timeout"]
-	        }
-	    }
+	{
+		"type": "function",
+		"function": {
+			"name": "execute_command",
+			"description": "This tool allows Sicken to execute commands in the VM. This command is useful to execute a non-interactive commands. This tool is perfect for using commands like ls, cat. lscpu, lspci and others where you need the whole output. Works with all operating systems. Do not use commands like cd, as each call of this tool creates a new shell - calls to the shell are not presistent between tool calls. Warning: This tool do block the execution of the application loop - do not use with commands that require user input to operate. Do not use with commands that needs to be running in the background - commands executed with this tool being killed after a timeout - use spawn_process instead.",
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"command": {
+						"type": "string",
+						"description": "A command to execute."
+					},
+					"timeout": {
+						"type": "integer",
+						"description": "Time(seconds) before command is killed due to a timeout expiration" 
+					}
+				},
+				"required": ["command", "timeout"]
+			}
+		}
 	},
 
-    {
-    	"type": "function",
-    	"function": {
-	        "name": "spawn_process",
-        	"description": "This tool allows Sicken to execute interactive commands in the VM. This command is useful to execute a interactive commands and commands that needs to be on in the background. To see the output of the process started with this command use the process_lookup tool. Useful for monitoring live commands like top, htop, bmon. Do not use this one for obtaining informations that don't update in time, as there is a risk that due to the terminal size, some informations may be truncated. Works with POSIX operating systems only.",
-	        "parameters": {
-	            "type": "object",
-	            "properties": {
-	                "command": {
-	                    "type": "string",
-	                    "description": "A command to execute."
-	                },
-	            },
-	            "required": ["command"]
-	        }
-	    }
-    },
-    {
-    	"type": "function",
-    	"function": {
-	        "name": "lookup_process",
-	        "description": "This tools allows Sicken to get a current snapshot of the running process' terminal session.",
-	        "parameters": {
-	            "type": "object",
-	            "properties": {
-	                "process_uuid": {
-	                    "type": "string",
-	                    "description": "A process uuid of the command spawned with a spawn_process tool to lookup."
-	                },
-	            },
-	            "required": ["process_uuid"]
-	        }
-	    }
-    },
-    {
-    	"type": "function",
-    	"function": {
-	        "name": "send_process_characters",
-	        "description": "This tools allows Sicken to interact with the running process' terminal session.",
-	        "parameters": {
-	            "type": "object",
-	            "properties": {
-	                "characters_string": {
-	                    "type": "string",
-	                    "description": "Characters to be sent on the process' stdin. Accepts characters and escape codes"
-	                },
-	                "process_uuid": {
-	                    "type": "string",
-	                    "description": "A process uuid of the command spawned with a spawn_process tool to send characters to."
-	                },
-	            },
-	            "required": ["process_uuid","characters_string"]
-	        }
-	    },
-    },
-    {
-    	"type": "function",
-    	"function": {
-	        "name": "sleep",
-	        "description": "Pause execution for specified time. Useful for waiting for the data to be populated",
-	        "parameters": {
-	            "type": "object",
-	            "properties": {
-	                "seconds": {
-	                    "type": "integer",
-	                    "description": "A number of seconds to sleep for."
-	                },
-	            },
-	            "required": ["seconds"]
-	        }
-	    }
-    },
+	{
+		"type": "function",
+		"function": {
+			"name": "spawn_process",
+			"description": "This tool allows Sicken to execute interactive commands in the VM. This command is useful to execute a interactive commands and commands that needs to be on in the background. To see the output of the process started with this command use the process_lookup tool. Useful for monitoring live commands like top, htop, bmon. Do not use this one for obtaining informations that don't update in time, as there is a risk that due to the terminal size, some informations may be truncated. Works with POSIX operating systems only.",
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"command": {
+						"type": "string",
+						"description": "A command to execute."
+					},
+				},
+				"required": ["command"]
+			}
+		}
+	},
+	{
+		"type": "function",
+		"function": {
+			"name": "lookup_process",
+			"description": "This tools allows Sicken to get a current snapshot of the running process' terminal session.",
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"process_uuid": {
+						"type": "string",
+						"description": "A process uuid of the command spawned with a spawn_process tool to lookup."
+					},
+				},
+				"required": ["process_uuid"]
+			}
+		}
+	},
+	{
+		"type": "function",
+		"function": {
+			"name": "send_process_characters",
+			"description": "This tools allows Sicken to interact with the running process' terminal session.",
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"characters_string": {
+						"type": "string",
+						"description": "Characters to be sent on the process' stdin. Accepts characters and escape codes"
+					},
+					"process_uuid": {
+						"type": "string",
+						"description": "A process uuid of the command spawned with a spawn_process tool to send characters to."
+					},
+				},
+				"required": ["process_uuid","characters_string"]
+			}
+		},
+	},
+	{
+		"type": "function",
+		"function": {
+			"name": "sleep",
+			"description": "Pause execution for specified time. Useful for waiting for the data to be populated",
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"seconds": {
+						"type": "integer",
+						"description": "A number of seconds to sleep for."
+					},
+				},
+				"required": ["seconds"]
+			}
+		}
+	},
+	{
+		"type": "function",
+		"function": {
+			"name": "search_web",
+			"description": "Search web",
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"search_query": {
+						"type": "string",
+						"description": "A query to search."
+					},
+					"search_results_limit":{
+						"type": "integer",
+						"description": "number of results shown in the search."
+					},
+				},
+				"required": ["search_query", "search_results_limit"]
+			}
+		}
+	},
+	{
+		"type": "function",
+		"function": {
+			"name": "scrape_webpage",
+			"description": "Scrape a webpage and receive it in markdown format.",
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"scrape_url": {
+						"type": "string",
+						"description": "A query url to scrape"
+					},
+				},
+				"required": ["scrape_url"]
+			}
+		},
+	},
+
+
 ]
 CHARACTERS_FEEDBACK="""Sent "{characters_string}" characters_string to the process' {process_uuid} terminal"""
 SLEEP_FEEDBACK="Sicken went to sleep for {seconds} seconds."
@@ -210,3 +288,5 @@ COMMAND_EXECUTE_FEEDBACK="Execution of command finished. \nCommand: {command}\nE
 COMMAND_EXECUTE_ERROR="Execution of command failed. {status_description}"
 SPAWN_PROCESS_FEEDBACK="A new process spawned.\ncommand: {command}\nprocess_uuid: {process_uuid}"
 PROCESS_LOOKUP_FEEDBACK="Sicken looked on a process' terminal"
+SEARCH_FEEDBACK="Sicken is searching web with query {search_query}"
+SCRAPE_FEEDBACK="Sicken is looking at website: {scrape_url}"

@@ -29,14 +29,14 @@ sicken-deepseek_llm_commands:
 
 # A GUI for Sicken - to be used with Vtube Studio.
 sicken-gui:
-  enable: True
+  enable: true
   workers_count: 1
   uid: 7676
   gid: 7676
 
 # Classification mechanism, responsible for memory of Sicken. Basen on OpenAI
 sicken-classification:
-  enable: true
+  enable: false
   workers_count: 5
   uid: 7676
   gid: 7676
@@ -49,6 +49,12 @@ sicken-commands:
   gid: 7676
 
 sicken-agent_server:
+  enable: true
+  workers_count: 1
+  uid: 7676
+  gid: 7676
+
+sicken-web_worker:
   enable: true
   workers_count: 1
   uid: 7676

@@ -1,9 +1,9 @@
 openai:
-  api_key: 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
-
+  api_key: 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
+  
 sicken:
   temperature: 0
-  model: gpt-5.1
+  model: gpt-5.4
   
   seed: 76
   frequency_penalty: null

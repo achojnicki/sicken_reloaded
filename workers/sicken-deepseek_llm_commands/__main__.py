@@ -7,7 +7,6 @@ from sicken.memories import Memories
 from sicken.knowledge import Knowledge
 from sicken.exceptions import ChatNotFoundException
 
-from constants import SYSTEM_MESSAGE, FUNCTIONS, TOOLS,COMMAND_EXECUTE_REQUEST, COMMAND_EXECUTE_ERROR, COMMAND_EXECUTE_FEEDBACK, SPAWN_PROCESS_FEEDBACK, PROCESS_LOOKUP_FEEDBACK, SLEEP_FEEDBACK, CHARACTERS_FEEDBACK
 
 from openai import OpenAI
 from pika import BlockingConnection, PlainCredentials, ConnectionParameters
@@ -17,6 +16,7 @@ from uuid import uuid4
 from time import time, sleep
 from threading import Thread, Lock
 
+from constants import SYSTEM_MESSAGE, FUNCTIONS, TOOLS,COMMAND_EXECUTE_REQUEST, COMMAND_EXECUTE_ERROR, COMMAND_EXECUTE_FEEDBACK, SPAWN_PROCESS_FEEDBACK, PROCESS_LOOKUP_FEEDBACK, SLEEP_FEEDBACK, CHARACTERS_FEEDBACK, SEARCH_FEEDBACK, SCRAPE_FEEDBACK
 
 
 class DeepSeek_LLM_Commands:
@@ -81,6 +81,20 @@ class DeepSeek_LLM_Commands:
 			on_message_callback=self._snapshot_handler
 		)
 
+		self._search_feedback_channel = self._threaded_rabbitmq_conn.channel()
+		self._search_feedback_channel.basic_consume(
+			queue='sicken-search_feedback',
+			auto_ack=True,
+			on_message_callback=self._search_handler
+		)
+
+		self._scrape_feedback_channel = self._threaded_rabbitmq_conn.channel()
+		self._scrape_feedback_channel.basic_consume(
+			queue='sicken-scrape_feedback',
+			auto_ack=True,
+			on_message_callback=self._scrape_handler
+		)
+
 
 		self._db=DB(self)
 		self._events=events(self)
@@ -98,6 +112,40 @@ class DeepSeek_LLM_Commands:
 
 		self._processes={}
 		self._processes_lock=Lock()
+
+		self._scrapes={}
+		self._scrapes_lock=Lock()
+
+		self._searches={}
+		self._searches_lock=Lock()
+
+		
+
+
+	def _scrape_handler(self, channel, method, properties, body):
+		message=loads(body)
+		scrape_uuid=message['scrape_uuid']
+
+		with self._scrapes_lock:
+			if scrape_uuid in self._scrapes:
+				self._scrapes[scrape_uuid]['received']=True
+				self._scrapes[scrape_uuid]['scrape_uuid']=message['scrape_uuid']
+				self._scrapes[scrape_uuid]['scrape_url']=message['scrape_url']
+				self._scrapes[scrape_uuid]['scrape_status']=message['scrape_status']
+				self._scrapes[scrape_uuid]['scrape_result']=message['scrape_result']
+
+
+
+	def _search_handler(self, channel, method, properties, body):
+		message=loads(body)
+		search_uuid=message['search_uuid']
+		with self._searches_lock:
+			if search_uuid in self._searches:
+				self._searches[search_uuid]['received']=True
+				self._searches[search_uuid]['search_uuid']=message['search_uuid']
+				self._searches[search_uuid]['search_query']=message['search_query']
+				self._searches[search_uuid]['search_results_limit']=message['search_results_limit']
+				self._searches[search_uuid]['search_results']=message['search_results']
 
 
 	def _command_handler(self, channel, method, properties, body):
@@ -138,7 +186,11 @@ class DeepSeek_LLM_Commands:
 			for message in previous_messages:
 				del message['chat_uuid']
 				if message['message_author'] == 'Sicken.ai':
-					m={"role": "assistant", "content": message['speech']}
+					m={"role": "assistant"}
+					if "speech" in message:
+						m["content"]=message['speech']
+					else:
+						m["content"]=None
 					if "reasoning_content" in message:
 						m["reasoning_content"]=message['reasoning_content']
 					prompt.append(m)
@@ -149,7 +201,8 @@ class DeepSeek_LLM_Commands:
 						"name": message['func_name'],
 						"content": dumps(message['message']),
 					}
-					
+
+						
 					if self._config.deepseek.use_tools_calls:
 						m['type']='function_tool_output'
 						m['tool_call_id']=message['call_id']
@@ -200,6 +253,7 @@ class DeepSeek_LLM_Commands:
 				"seed":self._config.sicken.seed,
 				"top_p":self._config.sicken.top_p,
 				"top_logprobs":self._config.sicken.top_logprobs,
+				"max_tokens": self._config.deepseek.max_tokens,
 				"messages": prompt,
 			}
 			if self._config.deepseek.use_tools_calls:
@@ -250,6 +304,63 @@ class DeepSeek_LLM_Commands:
 
 		return self._commands[command_uuid]
 
+	def _search(self, search_query, search_results_limit): 
+		search_uuid=str(uuid4())
+		
+		with self._searches_lock:
+			self._searches[search_uuid]={
+				"search_uuid": search_uuid,
+				"received": False,
+				"search_query": search_query,
+				"search_results_limit": search_results_limit,
+				"search_results": None
+			}
+
+		self._events.event(
+			event_name="search",
+			event_data={
+				"search_uuid": search_uuid,
+				"search_query": search_query,
+				"search_results_limit": search_results_limit
+				}
+			)
+
+		while True:
+			if self._searches[search_uuid]['received']:
+				break
+
+			sleep(0.1)
+
+		return self._searches[search_uuid]
+
+	def _scrape(self, scrape_url): 
+		scrape_uuid=str(uuid4())
+		
+		with self._scrapes_lock:
+			self._scrapes[scrape_uuid]={
+				"scrape_uuid": scrape_uuid,
+				"received": False,
+				"scrape_url": scrape_url,
+				"search_result": None,
+				"scrape_status": None
+			}
+
+		self._events.event(
+			event_name="scrape",
+			event_data={
+				"scrape_uuid": scrape_uuid,
+				"scrape_url": scrape_url
+				}
+			)
+
+		while True:
+			if self._scrapes[scrape_uuid]['received']:
+				break
+
+			sleep(0.1)
+
+		return self._scrapes[scrape_uuid]
+
 	def _spawn_process(self, command):
 		process_uuid=str(uuid4())
 
@@ -296,15 +407,17 @@ class DeepSeek_LLM_Commands:
 
 		while True:
 			if self._processes[process_uuid]['received']:
-				process=self._processes[process_uuid].copy()
+				with self._processes_lock:
+					process=self._processes[process_uuid].copy()
 				break
 			print('waiting')
 
 			sleep(0.1)
 
-		with self._processes_lock:
-			self._processes[process_uuid]["received"]=False
-			self._processes[process_uuid]["terminal_snapshot"]=None 
+		if process_uuid in self._processes:
+			with self._processes_lock:
+				self._processes[process_uuid]["received"]=False
+				self._processes[process_uuid]["terminal_snapshot"]=None 
 		return process
 
 	def _exec_function(self, func_name, func_args):
@@ -390,6 +503,33 @@ class DeepSeek_LLM_Commands:
 				event_name="command_feedback",
 				event_data={
 					"message": CHARACTERS_FEEDBACK.format(characters_string=func_args['characters_string'], process_uuid=func_args['process_uuid']),
+					"escape": True
+					}
+				)
+
+		elif func_name=="search_web":
+			result=self._search(
+				search_query=func_args['search_query'],
+				search_results_limit=func_args['search_results_limit']
+				)
+
+			self._events.event(
+				event_name="command_feedback",
+				event_data={
+					"message": SEARCH_FEEDBACK.format(search_query=func_args['search_query']),
+					"escape": True
+					}
+				)
+		
+		elif func_name=="scrape_webpage":
+			result=self._scrape(
+				scrape_url=func_args['scrape_url']
+				)
+
+			self._events.event(
+				event_name="command_feedback",
+				event_data={
+					"message": SCRAPE_FEEDBACK.format(scrape_url=func_args['scrape_url']),
 					"escape": True
 					}
 				)
@@ -503,7 +643,7 @@ class DeepSeek_LLM_Commands:
 
 
 	def start(self):
-		t=Thread(target=self._agent_terminal_snapshot_response_channel.start_consuming, args=[])
+		t=Thread(target=self._scrape_feedback_channel.start_consuming, args=[])
 		t.daemon=True
 		t.start()
 

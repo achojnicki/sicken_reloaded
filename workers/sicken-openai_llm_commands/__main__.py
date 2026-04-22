@@ -132,25 +132,34 @@ class OpenAI_LLM:
 			for message in previous_messages:
 				del message['chat_uuid']
 				if message['message_author'] == 'Sicken.ai':
-					prompt.append(
-						{"role": "assistant", "content": message['speech']}
-						)
+					m={"role": "assistant"}
+					if "speech" in message:
+						m["content"]=message['speech']
+					if "reasoning_content" in message:
+						m["reasoning_content"]=message['reasoning_content']
+					prompt.append(m)
 
 				elif message['message_author'] == 'function':
 					m={
 						"role": "tool" if 'gpt-5' in self._config.sicken.model.lower() else "function",
 						"name": message['func_name'],
-						"content": dumps(message['message'])
+						"content": dumps(message['message']),
 					}
+					
 					if 'gpt-5' in self._config.sicken.model.lower():
 						m['type']='function_tool_output'
 						m['tool_call_id']=message['call_id']
+
 					prompt.append(m)
 
+
 				elif message['message_author']=='tool_calls':
-					prompt.append(
-						{"role": "assistant", "content": None, "tool_calls": message['tool_calls']}
-						)
+					m={"role": "assistant", "content": None, "tool_calls": message['tool_calls']}
+
+					if "reasoning_content" in message:
+						m["reasoning_content"]=message['reasoning_content']
+					
+					prompt.append(m)
 
 				else:
 					prompt.append(
@@ -393,30 +402,45 @@ class OpenAI_LLM:
 				response_uuid=str(uuid4())
 				prompt=self._build_prompt(chat_uuid=message['chat_uuid'],msg=message)
 				while True:
-					self._log.debug(prompt)
-					self._log.warning(prompt)
-					response=self._get_model_response(
+					self._log.info(prompt)
+					resp=self._get_model_response(
 						prompt=prompt
 						)
-					self._log.warning(response.dict())
-					self._log.warning(response.content)
+					self._log.info(resp)
 
-					#embed()
 
-					if not response.function_call and not response.tool_calls:
-						response=response.content
+					if hasattr(resp,"reasoning_content") and resp.reasoning_content:
+						self._log.success('reasoning found')
+						self._events.event(
+							event_name="request_responded",
+							event_data={
+								"response_uuid": response_uuid,
+								"chat_uuid": message['chat_uuid'],
+								"message_author":message['message_author'],
+								"message": message['message'],
+								"speech": resp.reasoning_content,
+								}
+							)
+
+					if not resp.function_call and not resp.tool_calls:
+						response=resp.content
+						if hasattr(resp, "reasoning_content"):
+							reasoning_content=resp.reasoning_content
+						else:
+							reasoning_content=None
 
 						self._db.add_chat_message(
 							chat_uuid=message['chat_uuid'],
 							message_author='Sicken.ai',
 							message_source='OpenAI',
 							speech=response,
+							reasoning_content=reasoning_content
 							)
 						break
 
-					elif response.function_call:
-						func_name = response.function_call.name
-						func_args = loads(response.function_call.arguments)
+					elif resp.function_call:
+						func_name = resp.function_call.name
+						func_args = loads(resp.function_call.arguments)
 
 						result=self._exec_function(func_name, func_args)
 
@@ -426,18 +450,20 @@ class OpenAI_LLM:
 								message_source=None,
 								msg=result,
 								func_name=func_name,
+								reasoning_content=resp.reasoning_content
 								)
 						prompt=self._build_prompt(chat_uuid=message['chat_uuid'])
 
-					elif response.tool_calls:
+					elif resp.tool_calls:
 						self._db.add_chat_message(
 								chat_uuid=message['chat_uuid'],
 								message_author='tool_calls',
 								message_source=None,
-								tool_calls=response.dict()['tool_calls']
+								tool_calls=resp.dict()['tool_calls'],
+								reasoning_content=resp.reasoning_content if hasattr(resp, 'reasoning_content') else None
 								)
 
-						for tool_call in response.tool_calls:
+						for tool_call in resp.tool_calls:
 							func_name=tool_call.function.name
 							func_args=loads(tool_call.function.arguments)
 							result=self._exec_function(func_name, func_args)
@@ -448,7 +474,8 @@ class OpenAI_LLM:
 								message_source=None,
 								msg=result,
 								func_name=func_name,
-								call_id=tool_call.id
+								call_id=tool_call.id,
+
 								)
 						prompt=self._build_prompt(chat_uuid=message['chat_uuid'])
 
