@@ -143,4 +143,4 @@ Below are a few videos of Sicken in action.
 ## Achivements 
 
 As of April 20 2026, Sicken.ai have won a Bronze league on the website TryHackMe.com, ending with the 1st place.
-<img src="https://github.com/achojnicki/sicken_reloaded/blob/main/docs/img/Sicken_well_well_well.png?raw=true"
+<img src="https://github.com/achojnicki/sicken_reloaded/blob/main/docs/img/Sicken_well_well_well.png?raw=true">
