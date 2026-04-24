@@ -18,9 +18,21 @@ import psutil
 
 if system()=='Linux' or system()=='Darwin':
 	import pty
+	import fcntl, termios
+	from os import setsid
+
 
 SOCKETIO_URL='ws://{server_addr}:{server_port}/socket.io/'
 
+
+REPLACE_MAP={
+	"\\n": '\n',
+	"\\r": '\r',
+	"\\t": "\t",
+	"\\x03": chr(3),
+	"\\x04": chr(4),
+	"\\x1A": chr(26)
+}
 
 class sicken_agent:
 	def __init__(self, ):
@@ -57,23 +69,28 @@ class sicken_agent:
 	def _spawn_process(self,process_uuid, cmd):
 		master_fd, slave_fd = pty.openpty()
 
+		def preexec():
+			setsid()  # new session
+			fcntl.ioctl(slave_fd, termios.TIOCSCTTY, 0)
+
 		terminal=pyte.Screen(self._config.terminal.cols, self._config.terminal.rows)
 		stream=pyte.Stream(terminal)
 
 		process=Popen(
-		    [cmd],
-		    env={
-		    	"TERM": "vt100",
-		    	"COLUMNS": str(self._config.terminal.cols),
-		    	"LINES": str(self._config.terminal.rows),
-		    	"HOME": "/home/sicken",
-		    	"PATH": "/bin:/usr/bin:/usr/local/bin"
-		    },
-		    shell=True,
-		    stdin=slave_fd,
-		    stdout=slave_fd,
-		    stderr=slave_fd,
-		    close_fds=True,
+			[cmd],
+			env={
+				"TERM": "vt100",
+				"COLUMNS": str(self._config.terminal.cols),
+				"LINES": str(self._config.terminal.rows),
+				"HOME": "/home/sicken",
+				"PATH": "/bin:/usr/bin:/usr/local/bin"
+			},
+			shell=True,
+			stdin=slave_fd,
+			stdout=slave_fd,
+			stderr=slave_fd,
+			close_fds=True,
+			preexec_fn=preexec
 		)
 
 		close(slave_fd)
@@ -129,7 +146,10 @@ class sicken_agent:
 	def _send_string(self, process_uuid, characters_string):
 		if process_uuid in self._processes:
 			process=self._processes[process_uuid]
-			characters_string=characters_string.replace('\\n','\n').replace('\\r','\r').replace('\\t','\t').encode('utf-8')
+			for x in REPLACE_MAP:
+				characters_string=characters_string.replace(x,REPLACE_MAP[x])
+
+			characters_string=characters_string.encode('utf-8')
 			with process['terminal_lock']:
 				write(process['pty_master_fd'], characters_string)
 
@@ -200,11 +220,11 @@ class sicken_agent:
 		cmd=data['command']
 		timeout=data['timeout']
 		p=Popen(
-                cmd,
-                shell=True,
-                stdout=PIPE,
-                stderr=PIPE,
-                )
+				cmd,
+				shell=True,
+				stdout=PIPE,
+				stderr=PIPE,
+				)
 		self._log.info(f'Execution request received. command_uuid: {command_uuid}, cmd: {cmd} ')
 		try:
 			stdout, stderr=p.communicate(timeout=timeout)
