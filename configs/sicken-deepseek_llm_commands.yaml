@@ -2,13 +2,14 @@ deepseek:
   api_key: deepseek_api_key
   #what type of function calling is being used. Set true to tools calls and false to function calls
   use_tools_calls: true
+  max_tokens: 20000
 
 user:
   admin_username: username
 
 sicken:
   temperature: 1.3
-  model: deepseek-chat
+  model: deepseek-reasoner
   
   seed: 76
   frequency_penalty: null

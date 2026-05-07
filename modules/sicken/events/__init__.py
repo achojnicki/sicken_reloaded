@@ -36,6 +36,9 @@ class events:
 		else:
 			raise EventsFileNotFound
 
+		self._open_rabbitmq_connection()
+
+
 
 	def _open_rabbitmq_connection(self):
 		self._rabbitmq_connection=BlockingConnection(
@@ -78,10 +81,11 @@ class events:
 			"event_timestamp": datetime.now().timestamp()
 		}
 
-		self._open_rabbitmq_connection()
+		if self._rabbitmq_channel.is_closed or self._rabbitmq_connection.is_closed:
+			self._open_rabbitmq_connection()
+
 		self._rabbitmq_channel.basic_publish(
 			exchange="",
 			routing_key="sicken-events",
 			body=json_dumps(msg)
-		)
-		self._close_rabbitmq_connection()
+			)

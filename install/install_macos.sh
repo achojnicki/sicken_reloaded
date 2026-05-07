@@ -50,7 +50,7 @@ print "1st stage installation of dependencies"
 run "brew install python@3.12 ffmpeg"
 
 print "2nd stage installation of dependencies"
-run "/usr/local/bin/python3.12 -m pip install --break-system-packages numpy eventlet openai flask flask-socketio python-socketio psutil tabulate colored pymongo pyyaml pika uwsgi websockets pyobjc wxpython mistune eventlet firecrawl"
+run " /opt/homebrew/bin/python3.12 -m pip install --break-system-packages numpy eventlet openai flask flask-socketio python-socketio psutil tabulate colored pymongo pyyaml pika uwsgi websockets pyobjc wxpython mistune eventlet firecrawl"
 
 
 print "Installing MongoDB database"
@@ -60,7 +60,7 @@ run "brew install mongodb-community@8.0"
 
 run "brew services"
 
-run "brew services start mongodb-community"
+run "brew services start mongodb-community@8.0"
 
 print "Installing RabbitMQ"
 run "brew install rabbitmq"
@@ -70,69 +70,69 @@ run "sleep 10"
 
 
 print "Creating RabbitMQ users"
-run "rabbitmqctl delete_user guest"
-run "rabbitmqctl add_user sicken-logs password"
-run "rabbitmqctl add_user sicken-events password"
-run "rabbitmqctl add_user sicken-openai_llm password"
-run "rabbitmqctl add_user sicken-gui password"
-run "rabbitmqctl add_user sicken-ollama_llm password"
-run "rabbitmqctl add_user sicken-deepseek_llm password"
-run "rabbitmqctl add_user sicken-grok_llm password"
-run "rabbitmqctl add_user sicken-classification password"
-run "rabbitmqctl add_user sicken-commands password"
-run "rabbitmqctl add_user sicken-agent password"
-run "rabbitmqctl add_user sicken-web_worker password"
-run "rabbitmqctl add_user admin sicken"
+run "/opt/homebrew/sbin/rabbitmqctl delete_user guest"
+run "/opt/homebrew/sbin/rabbitmqctl add_user sicken-logs password"
+run "/opt/homebrew/sbin/rabbitmqctl add_user sicken-events password"
+run "/opt/homebrew/sbin/rabbitmqctl add_user sicken-openai_llm password"
+run "/opt/homebrew/sbin/rabbitmqctl add_user sicken-gui password"
+run "/opt/homebrew/sbin/rabbitmqctl add_user sicken-ollama_llm password"
+run "/opt/homebrew/sbin/rabbitmqctl add_user sicken-deepseek_llm password"
+run "/opt/homebrew/sbin/rabbitmqctl add_user sicken-grok_llm password"
+run "/opt/homebrew/sbin/rabbitmqctl add_user sicken-classification password"
+run "/opt/homebrew/sbin/rabbitmqctl add_user sicken-commands password"
+run "/opt/homebrew/sbin/rabbitmqctl add_user sicken-agent password"
+run "/opt/homebrew/sbin/rabbitmqctl add_user sicken-web_worker password"
+run "/opt/homebrew/sbin/rabbitmqctl add_user admin sicken"
 
 
 print "Setting RabbitMQ users permissions"
-rabbitmqctl set_user_tags admin administrator
-rabbitmqctl set_permissions -p / sicken-logs ".*" ".*" ".*"
-rabbitmqctl set_permissions -p / sicken-events ".*" ".*" ".*"
-rabbitmqctl set_permissions -p / sicken-openai_llm ".*" ".*" ".*"
-rabbitmqctl set_permissions -p / sicken-ollama_llm ".*" ".*" ".*"
-rabbitmqctl set_permissions -p / sicken-deepseek_llm ".*" ".*" ".*"
-rabbitmqctl set_permissions -p / sicken-grok_llm ".*" ".*" ".*"
-rabbitmqctl set_permissions -p / sicken-gui ".*" ".*" ".*"
-rabbitmqctl set_permissions -p / sicken-classification ".*" ".*" ".*"
-rabbitmqctl set_permissions -p / sicken-commands ".*" ".*" ".*"
-rabbitmqctl set_permissions -p / sicken-agent ".*" ".*" ".*"
-rabbitmqctl set_permissions -p / sicken-web_worker ".*" ".*" ".*"
-rabbitmqctl set_permissions -p / admin ".*" ".*" ".*"
+/opt/homebrew/sbin/rabbitmqctl set_user_tags admin administrator
+/opt/homebrew/sbin/rabbitmqctl set_permissions -p / sicken-logs ".*" ".*" ".*"
+/opt/homebrew/sbin/rabbitmqctl set_permissions -p / sicken-events ".*" ".*" ".*"
+/opt/homebrew/sbin/rabbitmqctl set_permissions -p / sicken-openai_llm ".*" ".*" ".*"
+/opt/homebrew/sbin/rabbitmqctl set_permissions -p / sicken-ollama_llm ".*" ".*" ".*"
+/opt/homebrew/sbin/rabbitmqctl set_permissions -p / sicken-deepseek_llm ".*" ".*" ".*"
+/opt/homebrew/sbin/rabbitmqctl set_permissions -p / sicken-grok_llm ".*" ".*" ".*"
+/opt/homebrew/sbin/rabbitmqctl set_permissions -p / sicken-gui ".*" ".*" ".*"
+/opt/homebrew/sbin/rabbitmqctl set_permissions -p / sicken-classification ".*" ".*" ".*"
+/opt/homebrew/sbin/rabbitmqctl set_permissions -p / sicken-commands ".*" ".*" ".*"
+/opt/homebrew/sbin/rabbitmqctl set_permissions -p / sicken-agent ".*" ".*" ".*"
+/opt/homebrew/sbin/rabbitmqctl set_permissions -p / sicken-web_worker ".*" ".*" ".*"
+/opt/homebrew/sbin/rabbitmqctl set_permissions -p / admin ".*" ".*" ".*"
 
-rabbitmqctl set_topic_permissions sicken-logs "" ".*" ".*"
-rabbitmqctl set_topic_permissions sicken-events "" ".*" ".*"
-rabbitmqctl set_topic_permissions sicken-openai_llm "" ".*" ".*"
-rabbitmqctl set_topic_permissions sicken-ollama_llm "" ".*" ".*"
-rabbitmqctl set_topic_permissions sicken-deepseek_llm "" ".*" ".*"
-rabbitmqctl set_topic_permissions sicken-grok_llm "" ".*" ".*"
-rabbitmqctl set_topic_permissions sicken-gui "" ".*" ".*"
-rabbitmqctl set_topic_permissions sicken-classification "" ".*" ".*"
-rabbitmqctl set_topic_permissions sicken-commands "" ".*" ".*"
-rabbitmqctl set_topic_permissions sicken-agent "" ".*" ".*"
-rabbitmqctl set_topic_permissions sicken-web_worker "" ".*" ".*"
-rabbitmqctl set_topic_permissions admin "" ".*" ".*"
+/opt/homebrew/sbin/rabbitmqctl set_topic_permissions sicken-logs "" ".*" ".*"
+/opt/homebrew/sbin/rabbitmqctl set_topic_permissions sicken-events "" ".*" ".*"
+/opt/homebrew/sbin/rabbitmqctl set_topic_permissions sicken-openai_llm "" ".*" ".*"
+/opt/homebrew/sbin/rabbitmqctl set_topic_permissions sicken-ollama_llm "" ".*" ".*"
+/opt/homebrew/sbin/rabbitmqctl set_topic_permissions sicken-deepseek_llm "" ".*" ".*"
+/opt/homebrew/sbin/rabbitmqctl set_topic_permissions sicken-grok_llm "" ".*" ".*"
+/opt/homebrew/sbin/rabbitmqctl set_topic_permissions sicken-gui "" ".*" ".*"
+/opt/homebrew/sbin/rabbitmqctl set_topic_permissions sicken-classification "" ".*" ".*"
+/opt/homebrew/sbin/rabbitmqctl set_topic_permissions sicken-commands "" ".*" ".*"
+/opt/homebrew/sbin/rabbitmqctl set_topic_permissions sicken-agent "" ".*" ".*"
+/opt/homebrew/sbin/rabbitmqctl set_topic_permissions sicken-web_worker "" ".*" ".*"
+/opt/homebrew/sbin/rabbitmqctl set_topic_permissions admin "" ".*" ".*"
 
 print 'Creating RabbitMQ Queues'
-run '/usr/local/bin/python3.12 create_queue.py sicken-events'
-run '/usr/local/bin/python3.12 create_queue.py sicken-logs'
-run '/usr/local/bin/python3.12 create_queue.py sicken-response_requests'
-run '/usr/local/bin/python3.12 create_queue.py sicken-gui_responses'
-run '/usr/local/bin/python3.12 create_queue.py sicken-gui_logs'
-run '/usr/local/bin/python3.12 create_queue.py sicken-classification_requests'
-run '/usr/local/bin/python3.12 create_queue.py sicken-command_requests'
-run '/usr/local/bin/python3.12 create_queue.py sicken-command_feedback'
-run '/usr/local/bin/python3.12 create_queue.py sicken-gui_commands_feedback'
-run '/usr/local/bin/python3.12 create_queue.py sicken-agent_command_execution_requests'
-run '/usr/local/bin/python3.12 create_queue.py sicken-agent_command_execution_response'
-run '/usr/local/bin/python3.12 create_queue.py sicken-agent_spawn_proceses_requests'
-run '/usr/local/bin/python3.12 create_queue.py sicken-agent_terminal_characters_requests'
-run '/usr/local/bin/python3.12 create_queue.py sicken-agent_terminal_snapshot_response'
-run '/usr/local/bin/python3.12 create_queue.py sicken-agent_terminal_snapshot_requests'
-run '/usr/local/bin/python3.12 sicken-search_requests'
-run '/usr/local/bin/python3.12 sicken-search_feedback'
-run '/usr/local/bin/python3.12 sicken-scrape_requests'
-run '/usr/local/bin/python3.12 sicken-scrape_feedback'
+run '/opt/homebrew/bin/python3.12 create_queue.py sicken-events'
+run '/opt/homebrew/bin/python3.12 create_queue.py sicken-logs'
+run '/opt/homebrew/bin/python3.12 create_queue.py sicken-response_requests'
+run '/opt/homebrew/bin/python3.12 create_queue.py sicken-gui_responses'
+run '/opt/homebrew/bin/python3.12 create_queue.py sicken-gui_logs'
+run '/opt/homebrew/bin/python3.12 create_queue.py sicken-classification_requests'
+run '/opt/homebrew/bin/python3.12 create_queue.py sicken-command_requests'
+run '/opt/homebrew/bin/python3.12 create_queue.py sicken-command_feedback'
+run '/opt/homebrew/bin/python3.12 create_queue.py sicken-gui_commands_feedback'
+run '/opt/homebrew/bin/python3.12 create_queue.py sicken-agent_command_execution_requests'
+run '/opt/homebrew/bin/python3.12 create_queue.py sicken-agent_command_execution_response'
+run '/opt/homebrew/bin/python3.12 create_queue.py sicken-agent_spawn_proceses_requests'
+run '/opt/homebrew/bin/python3.12 create_queue.py sicken-agent_terminal_characters_requests'
+run '/opt/homebrew/bin/python3.12 create_queue.py sicken-agent_terminal_snapshot_response'
+run '/opt/homebrew/bin/python3.12 create_queue.py sicken-agent_terminal_snapshot_requests'
+run '/opt/homebrew/bin/python3.12 create_queue.py sicken-search_requests'
+run '/opt/homebrew/bin/python3.12 create_queue.py sicken-search_feedback'
+run '/opt/homebrew/bin/python3.12 create_queue.py sicken-scrape_requests'
+run '/opt/homebrew/bin/python3.12 create_queue.py sicken-scrape_feedback'
 
 print "Enable RabbitMQ Managment plugin"
 run "rabbitmq-plugins enable rabbitmq_management"

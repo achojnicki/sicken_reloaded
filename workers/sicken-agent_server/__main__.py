@@ -1,18 +1,22 @@
-from eventlet import wsgi, monkey_patch
-from sicken.config import Config
 from sicken.log import Log
+from sicken.config import Config
 from sicken.events import events
 
+from eventlet import wsgi, monkey_patch
+from eventlet import debug as eventlet_debug
 from pika import BlockingConnection, PlainCredentials, ConnectionParameters
 from json import loads, dumps
 from time import sleep, time
 from uuid import uuid4
 from threading import Lock
 
+
+eventlet_debug.hub_prevent_multiple_readers(False)
 monkey_patch()
 
 from flask import Flask, render_template, request
 from flask_socketio import SocketIO
+
 
 import functools
 
@@ -26,7 +30,7 @@ class agent_server:
 		self.socketio=socketio
 
 		self._config=Config(self)
-		self.log=Log(
+		self._log=Log(
 			parent=self,
 			rabbitmq_host=self._config.rabbitmq.host,
 			rabbitmq_port=self._config.rabbitmq.port,
@@ -35,6 +39,7 @@ class agent_server:
 			debug=self._config.log.debug,
 			)
 
+		self._log.info('Starting sicken-agent_server')
 
 		self.application.config['SECRET_KEY'] = self._config.agent_server.secret
 
@@ -108,17 +113,14 @@ class agent_server:
 	def stop(self):
 		self.agent_command_execution_requests_channel.stop_consuming()
 
-
-
-
-		
+	
 	def _agents_checker(self):
 		while True:
 			try:
 				for agent in self._agents:
 					if self._agents[agent]['last_ping']:
 						if time() - self._agents[agent]['last_ping']>=10:
-							print('removing agent', self._agents[agent]['sid'])
+							self._log.info(f"removing agent  {self._agents[agent]['sid']}")
 							with self._sid2agent_uuid_lock:
 								del self._sid2agent_uuid[self._agents[agent]['sid']]
 
@@ -130,8 +132,7 @@ class agent_server:
 				pass
 
 	def _connect(self):
-		print("connect", request.sid)
-
+		pass
 
 	def _agent_connect(self):
 		agent_uuid=str(uuid4())
@@ -143,7 +144,7 @@ class agent_server:
 			self._sid2agent_uuid[request.sid]=agent_uuid
 
 
-		print('agent_connect', agent_uuid, request.sid)
+		self._log.info(f'agent_connect  {agent_uuid} {request.sid}')
 
 
 	def _ping(self, data=None):
@@ -152,7 +153,6 @@ class agent_server:
 			if agent_uuid in self._agents:
 				with self._agents_lock:
 					self._agents[agent_uuid]['last_ping']=time()
-				print('agent_ping', agent_uuid, request.remote_addr)
 
 
 	def _spawn_process_request(self, channel, method, properties, body):
@@ -166,7 +166,6 @@ class agent_server:
 			}
 		
 		for agent in self._agents:
-			print("sid", self._agents[agent]['sid'])
 
 			self.socketio.emit(
 				'spawn_process_request',
@@ -183,7 +182,6 @@ class agent_server:
 
 		
 		for agent in self._agents:
-			print("sid", self._agents[agent]['sid'])
 
 			self.socketio.emit(
 				'terminal_snapshot_request',
@@ -200,7 +198,6 @@ class agent_server:
 
 		
 		for agent in self._agents:
-			print("sid", self._agents[agent]['sid'])
 
 			self.socketio.emit(
 				'terminal_characters_request',
@@ -212,7 +209,6 @@ class agent_server:
 				)
 
 	def _process_terminal_snapshot_response(self, data):
-		print(data)
 		self._events.event(
 			event_name="terminal_snapshot",
 			event_data={
@@ -239,7 +235,6 @@ class agent_server:
 			}
 		if self._agents:
 			for agent in self._agents:
-				print("sid", self._agents[agent]['sid'])
 				self.socketio.emit(
 					'command_request',
 						{
@@ -265,7 +260,6 @@ class agent_server:
 
 
 	def _command_response(self, data):
-		print(data)
 		self._events.event(
 			event_name="command_executed",
 			event_data={
@@ -294,7 +288,6 @@ if __name__=="__main__":
 	app = Flask(__name__)
 	socketio = SocketIO(
 		app,
-		#cors_allowed_origins="https://demo.songrequest.co.uk"
 		cors_allowed_origins="*"
 		)
 
