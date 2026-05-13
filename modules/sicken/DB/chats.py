@@ -1,7 +1,17 @@
+from pymongo import ASCENDING
+
 class Chats:
 	def get_chats(self):
-		query={}
-		return self._chats_collection.find_one(query)
+		chats={}
+
+		cursor=self._chats_collection.find({})
+
+		for chat in cursor:
+			del chat['_id']
+			chats[chat['chat_uuid']]=chat
+
+		return chats
+
 
 	def create_chat(self, chat_uuid, chat_created):
 		document={
@@ -22,7 +32,7 @@ class Chats:
 		messages=[]
 
 		query={'chat_uuid': chat_uuid}
-		cursor=self._chat_messages_collection.find(query)
+		cursor=self._chat_messages_collection.find(query, sort=[('_id', ASCENDING)])
 
 		for message in cursor:
 			del message['_id']

@@ -14,6 +14,14 @@ sicken-web_worker:
       search_results: search_results
 
 sicken-agent_server:
+  agent_connected:
+    sicken-agent_connected_feedback:
+      agent_uuid: agent_uuid
+      agent_sid: agent_sid
+      agent_remote_addr: agent_remote_addr
+      status: status
+      status_description: status_description
+
   command_executed:
     sicken-agent_command_execution_response:
       command_uuid: command_uuid
@@ -123,16 +131,6 @@ sicken-deepseek_llm_commands:
 #<------>
 sicken-ollama_llm:
   request_responded:
-    sicken-gui_responses:
-      response_uuid: response_uuid
-      chat_uuid: chat_uuid
-      message_author: message_author
-      message: message
-      speech: speech
-      gesture: gesture
-#<------>
-sicken-grok_llm:
-  request_responded:  
     sicken-gui_responses:
       response_uuid: response_uuid
       chat_uuid: chat_uuid

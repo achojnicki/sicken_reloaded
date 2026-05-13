@@ -133,6 +133,9 @@ run '/opt/homebrew/bin/python3.12 create_queue.py sicken-search_requests'
 run '/opt/homebrew/bin/python3.12 create_queue.py sicken-search_feedback'
 run '/opt/homebrew/bin/python3.12 create_queue.py sicken-scrape_requests'
 run '/opt/homebrew/bin/python3.12 create_queue.py sicken-scrape_feedback'
+run '/opt/homebrew/bin/python3.12 create_queue.py sicken-agent_connected_feedback'
+
+
 
 print "Enable RabbitMQ Managment plugin"
 run "rabbitmq-plugins enable rabbitmq_management"

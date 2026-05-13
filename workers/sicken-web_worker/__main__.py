@@ -29,7 +29,7 @@ class Web_worker:
 			rabbitmq_passwd=self._config.rabbitmq.password,
 			debug=self._config.log.debug,
 			)
-
+		self._log.info('Initialising sicken-web_worker worker')
 
 		self._rabbitmq_conn = BlockingConnection(
 			ConnectionParameters(
@@ -62,6 +62,9 @@ class Web_worker:
 
 
 		self._firecrawl=Firecrawl(api_key=self._config.firecrawl.api_key)
+
+
+		self._log.success('Worker sicken-web_worker initialised successfully')
 
 			
 	def _search_request(self, channel, method, properties, body):
@@ -120,7 +123,7 @@ class Web_worker:
 					"scrape_result": None	
 				})
 
-			self._log.error(f'Scrapping webpage {message["scrape_url"]} failed. Error message: {str(e.args[0])}')
+			self._log.warning(f'Scrapping webpage {message["scrape_url"]} failed. Error message: {str(e.args[0])}')
 			
 		except:
 			self._log.exception('Exception occured')

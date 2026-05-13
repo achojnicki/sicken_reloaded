@@ -12,8 +12,6 @@ class Chat_Page(wx.Panel):
         self._frame=frame
         wx.Panel.__init__(self, parent)
 
-        self._chat_uuid=None
-        self._user_uuid=None
 
         self._view_path=Path(self._root._paths('VIEWS_DIR')).joinpath('gui').joinpath('chat.view')
 
@@ -58,6 +56,9 @@ class Chat_Page(wx.Panel):
     def enter_event(self, event):
         msg=self.textctrl.GetValue()
         if msg!='':
+            if not self._root._chat_uuid:
+                self._root._set_chat_uuid()
+
             self.textctrl.SetValue("")
             self.add_user_message(msg)
 
@@ -86,6 +87,8 @@ class Chat_Page(wx.Panel):
             
     def add_user_message(self, message):
         message=message.replace('\\',"&#92;")
+        message=message.replace('\n','\\n') 
+        message=message.replace('\r','\\r') 
         message=escape(message)
         self.html.RunScript('add_user_message("{0}");'.format(message))
 
@@ -98,6 +101,7 @@ class Chat_Page(wx.Panel):
         message=self._markdown(message)
         message=message.replace('\\',"&#92;")
         message=message.replace('\n','\\n') 
+        message=message.replace('\r','\\r') 
         message=message.replace('"',"'")
 
 

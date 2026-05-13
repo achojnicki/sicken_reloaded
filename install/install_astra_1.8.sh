@@ -181,6 +181,7 @@ run 'python3.11 ./create_queue_astra.py sicken-search_requests'
 run 'python3.11 ./create_queue_astra.py sicken-search_feedback'
 run 'python3.11 ./create_queue_astra.py sicken-scrape_requests'
 run 'python3.11 ./create_queue_astra.py sicken-scrape_feedback'
+run 'python3.11 ./create_queue_astra.py sicken-agent_connected_feedback'
 
 
 

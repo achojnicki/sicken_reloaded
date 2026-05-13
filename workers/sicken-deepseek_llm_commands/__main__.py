@@ -34,7 +34,7 @@ class DeepSeek_LLM_Commands:
 			debug=self._config.log.debug,
 			)
 
-
+		self._log.info('Initialising module sicken-deepseek_llm_commands worker')
 		self._rabbitmq_conn = BlockingConnection(
 			ConnectionParameters(
 				heartbeat=0,
@@ -119,12 +119,14 @@ class DeepSeek_LLM_Commands:
 		self._searches={}
 		self._searches_lock=Lock()
 
-		
+		self._log.success('Worker sicken-deepseek_llm_commands initialised successfully')
 
 
 	def _scrape_handler(self, channel, method, properties, body):
 		message=loads(body)
 		scrape_uuid=message['scrape_uuid']
+
+		self._log.success(f'Received a scrape request\'s response. scrape_uuid: {message['scrape_uuid']}, scrape_url:{message['scrape_url']}, scrape_status: {message['scrape_status']}')
 
 		with self._scrapes_lock:
 			if scrape_uuid in self._scrapes:
@@ -139,6 +141,9 @@ class DeepSeek_LLM_Commands:
 	def _search_handler(self, channel, method, properties, body):
 		message=loads(body)
 		search_uuid=message['search_uuid']
+
+		self._log.success(f'Received a search request\'s response. search_uuid: {message['search_uuid']}, search_query:{message['search_query']}')
+
 		with self._searches_lock:
 			if search_uuid in self._searches:
 				self._searches[search_uuid]['received']=True
@@ -151,6 +156,9 @@ class DeepSeek_LLM_Commands:
 	def _command_handler(self, channel, method, properties, body):
 		message=loads(body)
 		command_uuid=message['command_uuid']
+
+		self._log.success(f'Received a command execution request\'s response. command_uuid: {message['command_uuid']}, status:{message['status']}')
+
 
 		with self._commands_lock:
 			if command_uuid in self._commands:
@@ -165,6 +173,9 @@ class DeepSeek_LLM_Commands:
 	def _snapshot_handler(self, channel, method, properties, body):
 		message=loads(body)
 		process_uuid=message['process_uuid']
+
+		self._log.success(f'Received a terminal snapshot request\'s response. process_uuid: {message['process_uuid']}')
+
 
 		with self._processes_lock:
 			if process_uuid in self._processes:
@@ -241,7 +252,6 @@ class DeepSeek_LLM_Commands:
 			return prompt
 		except:
 			self._log.exception('Exception ocured in the build_prompt')
-			raise
 
 
 	def _get_model_response(self, prompt):
@@ -269,7 +279,6 @@ class DeepSeek_LLM_Commands:
 			return resp
 		except:
 			self._log.exception('Exception occured')
-			raise
 
 
 	def _execute_command(self, command, timeout): 
@@ -331,6 +340,7 @@ class DeepSeek_LLM_Commands:
 
 			sleep(0.1)
 
+		del self._searches[search_uuid]['received']
 		return self._searches[search_uuid]
 
 	def _scrape(self, scrape_url): 
@@ -341,7 +351,7 @@ class DeepSeek_LLM_Commands:
 				"scrape_uuid": scrape_uuid,
 				"received": False,
 				"scrape_url": scrape_url,
-				"search_result": None,
+				"scrape_result": None,
 				"scrape_status": None
 			}
 
@@ -359,6 +369,7 @@ class DeepSeek_LLM_Commands:
 
 			sleep(0.1)
 
+		del self._scrapes[scrape_uuid]['received']
 		return self._scrapes[scrape_uuid]
 
 	def _spawn_process(self, command):
@@ -540,7 +551,7 @@ class DeepSeek_LLM_Commands:
 	def _response_request(self, channel, method, properties, body):
 		try:		
 			message=loads(body.decode('utf8'))
-			self._log.info('Received response request')
+			self._log.info(f'Received response request. chat_uuid: {message['chat_uuid']},')
 			
 
 			if message:
@@ -556,7 +567,7 @@ class DeepSeek_LLM_Commands:
 
 
 					if hasattr(resp,"reasoning_content") and resp.reasoning_content:
-						self._log.success('reasoning found')
+						self._log.info('reasoning_content found')
 						self._events.event(
 							event_name="request_responded",
 							event_data={
@@ -569,6 +580,7 @@ class DeepSeek_LLM_Commands:
 							)
 
 					if not resp.function_call and not resp.tool_calls:
+						self._log.info('Not a function or a tool call message')
 						response=resp.content
 						if hasattr(resp, "reasoning_content"):
 							reasoning_content=resp.reasoning_content
@@ -585,6 +597,7 @@ class DeepSeek_LLM_Commands:
 						break
 
 					elif resp.function_call:
+						self._log.info('Function call message')
 						func_name = resp.function_call.name
 						func_args = loads(resp.function_call.arguments)
 
@@ -601,6 +614,7 @@ class DeepSeek_LLM_Commands:
 						prompt=self._build_prompt(chat_uuid=message['chat_uuid'])
 
 					elif resp.tool_calls:
+						self._log.info('Tool call message')
 						self._db.add_chat_message(
 								chat_uuid=message['chat_uuid'],
 								message_author='tool_calls',
@@ -639,7 +653,6 @@ class DeepSeek_LLM_Commands:
 				self._log.success('Response request responded successfully')
 		except:
 			self._log.exception('Exception occured')
-			raise
 
 
 	def start(self):
@@ -648,8 +661,6 @@ class DeepSeek_LLM_Commands:
 		t.start()
 
 		self._response_requests_channel.start_consuming()
-		
-
 
 	def stop(self):
 		self._response_requests_channel.stop_consuming()

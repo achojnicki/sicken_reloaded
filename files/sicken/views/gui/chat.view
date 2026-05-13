@@ -61,12 +61,16 @@
         sickens=document.createElement('div');
         sickens.classList.add('system_message_div');
         horizontal.appendChild(sickens);
-        p=document.createElement('p');
+        p=document.createElement('pre');
         p.innerHTML=message;
-        p.classList.add('system_message_p');
+        p.classList.add('system_message_pre');
         sickens.appendChild(p);
         chat_container=document.getElementById('chat_container').appendChild(horizontal);
         scroll();
+      }
+
+      function clean_chat() {
+        document.getElementById('chat_container').innerHTML="";
       }
 
       addEventListener("resize", onresize);

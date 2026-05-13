@@ -70,6 +70,8 @@ py ./create_queue.py sicken-search_requests
 py ./create_queue.py sicken-search_feedback
 py ./create_queue.py sicken-scrape_requests
 py ./create_queue.py sicken-scrape_feedback
+py ./create_queue.py sicken-scrape_feedback
+py ./create_queue.py sicken-agent_connected_feedback
 
 
 

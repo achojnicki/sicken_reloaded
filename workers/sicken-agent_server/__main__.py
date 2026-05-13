@@ -10,17 +10,13 @@ from time import sleep, time
 from uuid import uuid4
 from threading import Lock
 
-
 eventlet_debug.hub_prevent_multiple_readers(False)
 monkey_patch()
 
 from flask import Flask, render_template, request
 from flask_socketio import SocketIO
 
-
 import functools
-
-
 
 class agent_server:
 	project_name="sicken-agent_server"
@@ -39,7 +35,7 @@ class agent_server:
 			debug=self._config.log.debug,
 			)
 
-		self._log.info('Starting sicken-agent_server')
+		self._log.info('Initialising sicken-agent_server worker')
 
 		self.application.config['SECRET_KEY'] = self._config.agent_server.secret
 
@@ -98,7 +94,9 @@ class agent_server:
 			on_message_callback=self._terminal_characters_request
 		)
 
-	
+		self._log.success('Worker sicken-agent_server initialised successfully')
+
+
 	def start(self):
 		try:
 			self.socketio.start_background_task(target=self.agent_terminal_characters_request_channel.start_consuming)
@@ -125,9 +123,9 @@ class agent_server:
 								del self._sid2agent_uuid[self._agents[agent]['sid']]
 
 							with self._agents_lock:
-								del self._agents[agent]['sid']
+								del self._agents[agent]
 
-				self.socketio.sleep(0.1)
+				self.socketio.sleep(1)
 			except RuntimeError:
 				pass
 
@@ -142,9 +140,20 @@ class agent_server:
 
 		with self._sid2agent_uuid_lock:
 			self._sid2agent_uuid[request.sid]=agent_uuid
+	
+		self._events.event(
+				event_name="agent_connected",
+				event_data={
+					"agent_uuid": agent_uuid,
+					"agent_sid": request.sid,
+					"agent_remote_addr": request.remote_addr,
+					"status": "Success",
+					"status_description": f"A VM agent has connected. agent_uuid:{agent_uuid} remote_addr: {request.remote_addr}" 
+					}
+				)
 
+		self._log.info(f'agent_connect  {agent_uuid} {request.sid} {request.remote_addr}')
 
-		self._log.info(f'agent_connect  {agent_uuid} {request.sid}')
 
 
 	def _ping(self, data=None):

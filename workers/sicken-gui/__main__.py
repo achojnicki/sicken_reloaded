@@ -27,6 +27,8 @@ class Sicken:
 			rabbitmq_passwd=self._config.rabbitmq.password,
 			debug=self._config.log.debug,
 			)
+
+		self._log.info('Initialising sicken-gui')
 		
 		self._app=wx.App()
 
@@ -35,11 +37,7 @@ class Sicken:
 		self._paths=Paths()
 
 		self._sicken_gui=Sicken_GUI(self)
-		self._chat_uuid=str(uuid4())
-		self._db.create_chat(
-		            chat_uuid=self._chat_uuid,
-		            chat_created=time()
-		            )
+		self._chat_uuid=None
 
 
 		self.rabbitmq_conn = BlockingConnection(
@@ -74,6 +72,23 @@ class Sicken:
 			on_message_callback=self._command_feedback
 		)
 
+		self._agent_connected_feedback_channel = self.rabbitmq_conn.channel()
+		self._agent_connected_feedback_channel.basic_consume(
+			queue='sicken-agent_connected_feedback',
+			auto_ack=True,
+			on_message_callback=self._agent_connected_feedback
+		)
+
+		self._log.success('Worker sicken-gui initialised successfully')
+
+
+	def _set_chat_uuid(self):
+		self._chat_uuid=str(uuid4())
+		self._db.create_chat(
+            chat_uuid=self._chat_uuid,
+            chat_created=time()
+            )
+
 	def _gui_response(self, channel, method, properties, body):
 		message=loads(body.decode('utf8'))
 		if message and message['speech']:
@@ -83,6 +98,12 @@ class Sicken:
 		message=loads(body.decode('utf8'))
 		if message and message['message']:
 			self._sicken_gui._chat_page.add_system_message(message['message'], esc=message['escape'])
+
+	def _agent_connected_feedback(self, channel, method, properties, body):
+		message=loads(body.decode('utf8'))
+		if message:
+			self._sicken_gui._chat_page.add_system_message(message['status_description'], esc=True)
+
 
 	def _logs(self, channel, method, properties, body):
 		message=loads(body.decode('utf8'))
@@ -94,7 +115,7 @@ class Sicken:
 	def start(self):
 		self._sicken_gui.Show()
 
-		t=Thread(target=self._gui_commands_feedback_channel.start_consuming, args=[])
+		t=Thread(target=self._agent_connected_feedback_channel.start_consuming, args=[])
 		t.daemon=True
 		t.start()
 

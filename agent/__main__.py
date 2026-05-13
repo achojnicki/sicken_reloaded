@@ -21,9 +21,7 @@ if system()=='Linux' or system()=='Darwin':
 	import fcntl, termios
 	from os import setsid
 
-
 SOCKETIO_URL='ws://{server_addr}:{server_port}/socket.io/'
-
 
 REPLACE_MAP={
 	"\\n": '\n',
@@ -62,8 +60,6 @@ REPLACE_MAP={
     "\\x19": chr(0x19),
     "\\x1A": chr(0x1A),
     "\\x1a": chr(0x1A),
-
-
 }
 
 class sicken_agent:
@@ -76,6 +72,8 @@ class sicken_agent:
 			backends=['terminal_colorful'],
 			debug=False
 			)
+
+		self._log.info('Initialising sicken-agent')
 
 		self._socketio=socketio.Client(logger=False, engineio_logger=False)
 		self._socketio.on('command_request', namespace="/", handler=self._execute_command)
@@ -90,6 +88,8 @@ class sicken_agent:
 		self._session_uuid=str(uuid4())
 		mkdir(f'/tmp/sicken_{self._session_uuid}')
 		chdir(f'/tmp/sicken_{self._session_uuid}')
+
+		self._log.success('Agent sicken-agent initialised successfully')
 
 	def spawn_process(self, data):
 		self._log.info(f'Spawning new process. process_uuid: {data["process_uuid"]}, command: {data["command"]}')
@@ -282,13 +282,19 @@ class sicken_agent:
 
 
 		except TimeoutExpired:
-			self._log.warning(f"Execuution of command command_uuid:{command_uuid} cmd:{cmd} timeouted.")
+			self._log.warning(f"Execution of command command_uuid:{command_uuid} cmd:{cmd} timeouted.")
 			
 			if self._config.sicken_agent.kill_on_timeout:
 				parent = psutil.Process(p.pid)
 				for child in parent.children(recursive=True): 
-					child.kill()
-				parent.kill()
+					try:
+						child.kill()
+					except:
+						pass
+				try:		
+					parent.kill()
+				except:
+					pass
 
 				while p.poll()==None:
 					sleep(0.1)
@@ -309,7 +315,7 @@ class sicken_agent:
 					"stdout": stdout.decode('utf-8'),
 					"stderr": stderr.decode('utf-8'),
 					"status": "Error",
-					"status_description": "Execution of the command got timeout."
+					"status_description": "Execution of command timeouted."
 				},
 			namespace="/")
 

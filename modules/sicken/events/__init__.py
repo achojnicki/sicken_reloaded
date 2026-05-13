@@ -1,7 +1,7 @@
 from .exceptions import EventsFileNotFound, EventNotFound
 from sicken.paths import Paths
 
-from pika import BlockingConnection, ConnectionParameters, PlainCredentials
+from pika import BlockingConnection, ConnectionParameters, PlainCredentials, exceptions
 from yaml import safe_load, dump
 from json import dumps as json_dumps
 from json import loads as json_loads
@@ -17,27 +17,31 @@ class AttrDict(dict):
 		self.__dict__ = self     
 
 class events:
-	def __init__(self, root ):
+	def __init__(self, root):
 		self._events=[]
 
 		self._root=root
 		self._config=root._config
 		self._log=None
+
 		if hasattr(root,'_log'):
 			self._log=root._log
+			self._log.info('Initialising events module')
 
 		self._paths=Paths()
-		self._events_file=Path(self._paths("EVENTS_FILE_PATH"))
 
+		self._events_file=Path(self._paths("EVENTS_FILE_PATH"))
 		if self._events_file.is_file():
 			if self._log:
-				self._log.debug('Events file detected. Opening...')
+				self._log.debug('Found an events definition file. Opening and loading...')
 			self._load_events()
 		else:
 			raise EventsFileNotFound
 
 		self._open_rabbitmq_connection()
 
+		if self._log:
+			self._log.success('Events module initialised successfully')
 
 
 	def _open_rabbitmq_connection(self):
@@ -54,8 +58,11 @@ class events:
 		self._rabbitmq_channel=self._rabbitmq_connection.channel()
 
 	def _close_rabbitmq_connection(self):
-		self._rabbitmq_channel.close()
-		self._rabbitmq_connection.close()
+		if self._rabbitmq_channel.is_open:
+			self._rabbitmq_channel.close()
+
+		if self._rabbitmq_connection.is_open:
+			self._rabbitmq_connection.close()
 
 
 	def _load_events(self):
@@ -80,12 +87,29 @@ class events:
 			"event_data": event_data,
 			"event_timestamp": datetime.now().timestamp()
 		}
+		attempt=0
 
-		if self._rabbitmq_channel.is_closed or self._rabbitmq_connection.is_closed:
-			self._open_rabbitmq_connection()
+		while attempt<3:
+			if self._rabbitmq_channel.is_closed or self._rabbitmq_connection.is_closed:
+				self._open_rabbitmq_connection()
 
-		self._rabbitmq_channel.basic_publish(
-			exchange="",
-			routing_key="sicken-events",
-			body=json_dumps(msg)
-			)
+			if self._log:
+				self._log.info(f'Emitting event name:{event_name} source:{self._root.project_name}')
+			try:
+				self._rabbitmq_channel.basic_publish(
+					exchange="",
+					routing_key="sicken-events",
+					body=json_dumps(msg)
+					)
+				if self._log:
+					self._log.success(f'Event {event_name} emitted successfully')
+				return
+			
+			except exceptions.StreamLostError:
+				self._log.info('Failed to emit an event. retrying')
+				self._close_rabbitmq_connection()
+
+			attempt+=1
+		self._log.fatal('Reached max attempts of event delively')
+
+

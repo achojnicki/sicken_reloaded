@@ -87,7 +87,7 @@ FUNCTIONS = [
 			"properties": {
 				"characters_string": {
 					"type": "string",
-					"description": "Characters to be sent on the process' stdin. Accepts characters and escape codes"
+					"description": "Characters to be sent on the process' stdin. Accepts characters and escape codes. send escape codes in this format: \\x03 for ^C"""
 				},
 				"process_uuid": {
 					"type": "string",
@@ -212,7 +212,7 @@ TOOLS = [
 				"properties": {
 					"characters_string": {
 						"type": "string",
-						"description": "Characters to be sent on the process' stdin. Accepts characters and escape codes"
+						"description": "Characters to be sent on the process' stdin. Accepts characters and escape codes. send escape codes in this format: \\x03 for ^C"""
 					},
 					"process_uuid": {
 						"type": "string",

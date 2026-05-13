@@ -44,6 +44,8 @@ class Events:
 			rabbitmq_passwd=self._config.rabbitmq.password,
 			debug=self._config.log.debug,
 			)
+
+		self._log.info('Initialising sicken-events worker')
 		self._paths=Paths()
 
 		self._rabbitmq_connection=BlockingConnection(
@@ -72,9 +74,12 @@ class Events:
 		self._metrics=self._mongo_db['events_metrics']
 
 		self._events_file=Path(self._paths("EVENTS_FILE_PATH"))
+
 		if self._events_file.is_file():
 			self._log.debug('Events file detected. Opening...')
 			self._load_events()
+
+		self._log.success('Worker sicken-events initialised successfully')
 
 	def _add_metric(self, event_uuid, event_source, event_name, event_destination, event_data, event_timestamp):
 		document={
@@ -154,7 +159,7 @@ class Events:
 						event_uuid=str(uuid4())
 						time=datetime.now()
 
-						self._log.info(f'Emitting event {event_uuid} {message["event_name"]} to the queue {destination["event_destination"]}.')
+						self._log.info(f'Received event {event_uuid} {message["event_name"]} from the worker {message["event_source"]} to the queue {destination["event_destination"]}.')
 
 						self._add_metric(
 							event_uuid=event_uuid,
