@@ -147,7 +147,7 @@ Below are a few videos of Sicken in action.
 	</tr>
 	<tr>
 		<td>
-			<a href="https://www.youtube.com/watch?v=rZoyxQqLn0k"><img src="https://img.youtube.com/vi/dKAFL-RSBk4/0.jpg"></a>
+			<a href="https://www.youtube.com/watch?v=rZoyxQqLn0k"><img src="https://img.youtube.com/vi/rZoyxQqLn0k/0.jpg"></a>
 		</td>
 		<td>
 			<a href="https://www.youtube.com/watch?v=6GqASKLQUC8"><img src="https://img.youtube.com/vi/6GqASKLQUC8/0.jpg"></a>
