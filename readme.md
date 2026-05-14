@@ -137,6 +137,22 @@ Below are a few videos of Sicken in action.
 			<a href="https://www.youtube.com/watch?v=HqM2EizVSCs"><img src="https://img.youtube.com/vi/HqM2EizVSCs/0.jpg"></a>
 		</td>
 	</tr>
+	<tr>
+		<td>
+			<a href="https://www.youtube.com/watch?v=dKAFL-RSBk4"><img src="https://img.youtube.com/vi/dKAFL-RSBk4/0.jpg"></a>
+		</td>
+		<td>
+			<a href="https://www.youtube.com/watch?v=bMa2iOfs5V4"><img src="https://img.youtube.com/vi/bMa2iOfs5V4/0.jpg"></a>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<a href="https://www.youtube.com/watch?v=rZoyxQqLn0k"><img src="https://img.youtube.com/vi/dKAFL-RSBk4/0.jpg"></a>
+		</td>
+		<td>
+			<a href="https://www.youtube.com/watch?v=6GqASKLQUC8"><img src="https://img.youtube.com/vi/6GqASKLQUC8/0.jpg"></a>
+		</td>
+	</tr>
 
 </table>
 
@@ -145,7 +161,7 @@ Below are a few videos of Sicken in action.
 As of April 20th 2026, Sicken.ai have won a Bronze league on the website TryHackMe.com, ending with the 1st place.
 <img src="https://github.com/achojnicki/sicken_reloaded/blob/main/docs/img/Sicken_well_well_well_bronze.png?raw=true">
 
-As of April 20th 2026, Sicken.ai have won a Silver league on the website TryHackMe.com, ending with the 1st place.
+As of April 27th 2026, Sicken.ai have won a Silver league on the website TryHackMe.com, ending with the 1st place.
 <img src="https://github.com/achojnicki/sicken_reloaded/blob/main/docs/img/Sicken_well_well_well_silver.png?raw=true">
 
 As of May 4th 2026, Sicken.ai have won a Golden league on the website TryHackMe.com, ending with the 1st place.
