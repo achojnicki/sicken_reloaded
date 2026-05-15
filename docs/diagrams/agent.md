@@ -93,7 +93,7 @@
 │  ┌──────────────────────────┐   ┌──────────────────────────────────────┐    │
 │  │     adisconfig Module    │   │        adislog Module                │    │
 │  │  ┌────────────────────┐  │   │  ┌────────────────────────────────┐  │    │
-│  │  │ AttrDict (dict)    │  │   │  │ adislog_methods:               │  │    │
+│  │  │ adisconfig         │  │   │  │ adislog_methods:               │  │    │
 │  │  │  - dot access cfg  │  │   │  │  .debug(), .info(), .warning() │  │    │
 │  │  │  - YAML loading    │  │   │  │  .error(), .fatal(), .success()│  │    │
 │  │  └────────────────────┘  │   │  │  .exception()                  │  │    │
@@ -104,8 +104,11 @@
 │  │  │  kill_on_timeout: F   │   │  │  constants.py → levels/colors  │  │    │
 │  │  └─ terminal:            │   │  │                                │  │    │
 │  │     cols: 130, rows: 30  │   │  │  Backends:                     │  │    │
-│  │                          │   │  │  └─ terminal_colorful.py       │  │    │
-│  └──────────────────────────┘   │  │     (used by agent)            │  │    │
+│  └──────────────────────────┘   │  │  ├─ terminal_colorful.py       │  │    │
+│                                 │  │  ├─ terminal_table.py          │  │    │
+│                                 │  │  ├─ terminal.py                │  │    │
+│                                 │  │  ├─ rabbitmq_emitter.py        │  │    │
+│                                 │  │  └─ file_plain.py              │  │    │
 │                                 │  └────────────────────────────────┘  │    │
 │                                 └──────────────────────────────────────┘    │
 │                                                                             │
