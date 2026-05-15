@@ -83,7 +83,7 @@
 │  │                                                                      │   │
 │  │  ┌─────────────────────────────────────────────────────────────────┐ │   │
 │  │  │                    Lifecycle (start())                          │ │   │
-│  │  │  1. terminal_updater_thread()  → starts terminal updater        │ │   │
+│  │  │  1. terminal_updater_thread() → starts terminal updater         │ │   │
 │  │  │  2. connect()                 → WebSocket to server             │ │   │
 │  │  │  3. ping()                    → starts ping thread              │ │   │
 │  │  │  4. socketio.wait()           → blocks, handles events          │ │   │
