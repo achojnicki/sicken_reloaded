@@ -130,20 +130,20 @@
          │ WebSocket (SocketIO)
          │
          ▼
-┌────────────────────┐
-│  sicken_agent      │
-│                    │
-│  ◄── command_request ──► Popen(cmd) ──► command_response
-│  ◄── spawn_process_request ──► PTY + pyte ──► stored in _processes
-│  ◄── terminal_snapshot_request ──► reads pyte.Screen.display ──► snapshot_response
-│  ◄── terminal_characters_request ──► write(pty_fd, characters)
-│  ──► agent_ping (every 1s, heartbeat)
-│  ──► agent_connect (on connection)
-│                    │
-│  Background:       │
-│  ──► Terminal Updater Thread (select() loop, feeds pyte)
-│  ──► Ping Thread (heartbeat)
-└────────────────────┘
+┌────────────────────────────────────────────────────────────────────────────────────┐
+│  sicken_agent                                                                      │
+│                                                                                    │
+│  ◄── command_request ──► Popen(cmd) ──► command_response                           │
+│  ◄── spawn_process_request ──► PTY + pyte ──► stored in _processes                 │
+│  ◄── terminal_snapshot_request ──► reads pyte.Screen.display ──► snapshot_response │
+│  ◄── terminal_characters_request ──► write(pty_fd, characters)                     │
+│  ──► agent_ping (every 1s, heartbeat)                                              │
+│  ──► agent_connect (on connection)                                                 │
+│                                                                                    │
+│  Background:                                                                       │
+│  ──► Terminal Updater Thread (select() loop, feeds pyte)                           │
+│  ──► Ping Thread (heartbeat)                                                       │
+└────────────────────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
