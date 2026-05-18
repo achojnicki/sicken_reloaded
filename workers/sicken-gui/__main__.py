@@ -79,6 +79,7 @@ class Sicken:
 			on_message_callback=self._agent_connected_feedback
 		)
 
+		self._exception_warning_showed=False
 		self._log.success('Worker sicken-gui initialised successfully')
 
 
@@ -111,6 +112,9 @@ class Sicken:
 			wx.CallAfter(
 				self._sicken_gui._logs_page._add_item,
 				message)
+			if message['exception_data'] and not self._exception_warning_showed:
+				self._exception_warning_showed=True
+				wx.CallAfter(wx.MessageBox, "Exception occured.", "Error", wx.OK|wx.ICON_ERROR)
 
 	def start(self):
 		self._sicken_gui.Show()

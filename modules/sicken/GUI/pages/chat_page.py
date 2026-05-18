@@ -92,7 +92,7 @@ class Chat_Page(wx.Panel):
         message=escape(message)
         self.html.RunScript('add_user_message("{0}");'.format(message))
 
-    def add_sickens_message(self, message):
+    def add_sickens_message(self, message, callafter=True):
         #message=message.replace('\r','')
         #message=message.replace('\t','')
 
@@ -107,9 +107,12 @@ class Chat_Page(wx.Panel):
 
         s='add_sickens_message("{0}");'.format(message)
         print(s)
-        wx.CallAfter(self.html.RunScript, s)
+        if callafter:
+            wx.CallAfter(self.html.RunScript, s)
+        else:
+            self.html.RunScript(s)
 
-    def add_system_message(self, message, esc=True):
+    def add_system_message(self, message, esc=True, callafter=True):
         message=message.replace('\r','')
         message=message.replace('\t','')
         
@@ -121,7 +124,10 @@ class Chat_Page(wx.Panel):
 
         s='add_system_message("{0}");'.format(message)
         print(s)
-        wx.CallAfter(self.html.RunScript, s)
+        if callafter:
+            wx.CallAfter(self.html.RunScript, s)
+        else:
+            self.html.RunScript(s)
 
 
 
