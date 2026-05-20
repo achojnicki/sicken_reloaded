@@ -21,11 +21,14 @@
       ::-webkit-scrollbar-track {background: rgba(0, 0, 0, 0.2);}
     </style>
     <script>
+      autoscroll=true;
       st=1000;
       function scroll() {
-        chat_container=document.getElementById('chat_container');
-        chat_container.scrollTop=st;
-        st+=100000;
+        if (autoscroll==true) {
+          chat_container=document.getElementById('chat_container');
+          chat_container.scrollTop=st;
+          st+=100000;
+        }
       }
       function add_user_message(message) {
         horizontal=document.createElement('div');
@@ -75,7 +78,7 @@
 
       addEventListener("resize", onresize);
       function onresize(e) {
-        document.getElementById('chat_container').style.height=window.innerHeight-40;
+        document.getElementById('chat_container').style.height=window.innerHeight-15;
       };
     </script>
   </head>

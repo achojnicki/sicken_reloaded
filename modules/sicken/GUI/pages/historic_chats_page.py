@@ -99,35 +99,8 @@ class Historic_Chats_Page(wx.Panel):
 
     def _on_resume(self, event=None):
         chat_uuid=self._chats[self._chats_indexes[self.choice.GetSelection()]]['chat_uuid']
-        chat=self._root._db.get_chat_messages(chat_uuid=chat_uuid)
-
-        s='clean_chat();'
-        self._root._sicken_gui._chat_page.html.RunScript(s)
-
-        self._root._chat_uuid=chat_uuid
-
-        for message in chat:
-            if message['message_author']=='Sicken.ai':
-
-                if 'reasoning_content' in message and message['reasoning_content']:
-                    self._root._sicken_gui._chat_page.add_sickens_message(message=message['reasoning_content'], callafter=False)
-
-                self._root._sicken_gui._chat_page.add_sickens_message(message=message['speech'], callafter=False)
-
-            elif message['message_author']=='function':
-                self._root._sicken_gui._chat_page.add_system_message(pformat(message['message']), esc=True, callafter=False)
-
-            elif message['message_author']=='tool_calls':
-                if 'reasoning_content' in message and message['reasoning_content']:
-                    self._root._sicken_gui._chat_page.add_sickens_message(message=message['reasoning_content'], callafter=False)
-
-                self._root._sicken_gui._chat_page.add_system_message(pformat(message['tool_calls']), esc=True, callafter=False)
-
-            else:
-                self._root._sicken_gui._chat_page.add_user_message(message['message'])
-
-
-        self._parent.SetSelection(0)
+        self._root._sicken_gui._chat_page.resume(
+            chat_uuid=chat_uuid)
 
 
     def parse_command(self, cmd):

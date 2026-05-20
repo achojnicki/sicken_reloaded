@@ -1,3 +1,4 @@
+from sicken.exceptions import ChatNotFoundException
 from pymongo import ASCENDING
 
 class Chats:
@@ -25,7 +26,7 @@ class Chats:
 		query={'chat_uuid': chat_uuid}
 		return self._chats_collection.find_one(query)
 
-	def get_chat_messages(self, chat_uuid):
+	def get_chat_messages(self, chat_uuid, del_id=True):
 		if not self.get_chat(chat_uuid):
 			raise ChatNotFoundException
 
@@ -35,10 +36,16 @@ class Chats:
 		cursor=self._chat_messages_collection.find(query, sort=[('_id', ASCENDING)])
 
 		for message in cursor:
-			del message['_id']
+			if del_id:
+				del message['_id']
+
 			messages.append(message)
 
 		return messages
+
+	def remove_chat_message(self, _id):
+		query={"_id": _id}
+		self._chat_messages_collection.delete_one(query)
 
 
 	def add_chat_message(self, chat_uuid, message_author, message_source, speech=None, gesture=None, func_name=None, call_id=None, tool_calls=None, reasoning_content=None, msg=None):
