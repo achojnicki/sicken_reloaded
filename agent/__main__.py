@@ -302,9 +302,9 @@ class sicken_agent:
 				stdout, stderr=p.communicate()
 				exit_code=p.returncode
 			else:
-				stdout=None
-				stderr=None
-				exit_code=None
+				stdout=""
+				stderr=""
+				exit_code=""
 
 			self._socketio.emit(
 				'command_response',
@@ -312,8 +312,8 @@ class sicken_agent:
 					"command_uuid": command_uuid,
 					"command": cmd,
 					"exit_code": exit_code,
-					"stdout": stdout.decode('utf-8'),
-					"stderr": stderr.decode('utf-8'),
+					"stdout": stdout.decode('utf-8', errors="replace"),
+					"stderr": stderr.decode('utf-8', errors="replace"),
 					"status": "Error",
 					"status_description": "Execution of command timeouted."
 				},
