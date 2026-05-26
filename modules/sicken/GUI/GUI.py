@@ -13,7 +13,7 @@ import wx
 class Sicken_GUI(wx.Frame):
 	def __init__(self, root):
 		self._root=root
-		wx.Frame.__init__(self, None, title="Sicken.ai", size=(750,810), style=wx.DEFAULT_FRAME_STYLE)
+		wx.Frame.__init__(self, None, title="Sicken.ai", size=(850,1010),pos=(0,35), style=wx.DEFAULT_FRAME_STYLE)
 
 		self._notebook=wx.Notebook(self)
 		

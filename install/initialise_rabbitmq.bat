@@ -72,6 +72,7 @@ py ./create_queue.py sicken-scrape_requests
 py ./create_queue.py sicken-scrape_feedback
 py ./create_queue.py sicken-scrape_feedback
 py ./create_queue.py sicken-agent_connected_feedback
+py ./create_queue.py sicken-publish_x_post_requests
 
 
 

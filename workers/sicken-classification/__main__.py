@@ -52,7 +52,9 @@ class Classification:
 			on_message_callback=self._classification_request
 		)
 		
-		self._openai=OpenAI(api_key=self._config.openai.api_key)
+		self._openai=OpenAI(
+			api_key=self._config.deepseek.api_key, 
+			base_url="https://api.deepseek.com")
 		self._db=DB(self)
 		self._events=events(self)
 
@@ -73,7 +75,6 @@ class Classification:
 			return prompt
 		except:
 			self._log.exception('Exception ocured in the build_prompt')
-			raise
 
 
 	def _get_model_response(self, prompt):
@@ -91,7 +92,6 @@ class Classification:
 
 		except:
 			self._log.exception('Exception occured')
-			raise
 
 	def _classification_request(self, channel, method, properties, body):
 		try:
@@ -99,26 +99,20 @@ class Classification:
 			message=loads(body.decode('utf8'))
 
 			if message:
-				print('Queue message:')
-				print(message)
 				self._log.debug(message)
 				response_uuid=str(uuid4())
 
 				prompt=self._build_prompt(msg=message)
-				print('Prompt:')
-				print(prompt)
 				self._log.debug(prompt)
 
 
 				response=self._get_model_response(
 						prompt=prompt
 					)
-				print('Model response:')
-				print(response)
 				response=loads(response)
 				self._log.debug(response)
 
-				self._log.info(f'OpenAI LLM found {len(response["classifications"])} classification{"s" if len(response["classifications"])>1 else ""} in the message.')
+				self._log.info(f'DeepSeek LLM found {len(response["classifications"])} classification{"s" if len(response["classifications"])>1 else ""} in the message.')
 				for classification in response['classifications']:
 					self._memories._add_memory(
 						profile_user_name=message['profile_user_name'],
@@ -132,12 +126,9 @@ class Classification:
 					self._log.success('Memories saved.')
 		except:
 			self._log.exception('Exception occured')
-			raise
 
 	def start(self):
 		self._classification_requests_channel.start_consuming()
-		
-
 
 	def stop(self):
 		self._classification_requests_channel.stop_consuming()

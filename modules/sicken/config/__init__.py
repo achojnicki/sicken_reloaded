@@ -39,7 +39,7 @@ class Config:
         for data in self._config:
             d[data]=dict(self._config[data])
 
-        with open(self._config_file,'w') as config_file:
+        with open(self._config_path,'w') as config_file:
             dump(d, config_file, sort_keys=False)
 
     def __getattr__(self, attr):

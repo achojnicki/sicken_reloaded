@@ -42,7 +42,7 @@ class Workers_manager:
         self._config=root._config
         self._config_workers=root._config_workers
         
-        self._log.success('Initialisation of workers_manager successed!')
+        self._log.success('Initialisation of workers_manager succeeded!')
 
     def _count_active_workers(self, name:str):
         count=0

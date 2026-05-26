@@ -134,14 +134,13 @@ run '/opt/homebrew/bin/python3.12 create_queue.py sicken-search_feedback'
 run '/opt/homebrew/bin/python3.12 create_queue.py sicken-scrape_requests'
 run '/opt/homebrew/bin/python3.12 create_queue.py sicken-scrape_feedback'
 run '/opt/homebrew/bin/python3.12 create_queue.py sicken-agent_connected_feedback'
+run '/opt/homebrew/bin/python3.12 create_queue.py sicken-publish_x_post_requests'
 
 
 
 print "Enable RabbitMQ Managment plugin"
 run "rabbitmq-plugins enable rabbitmq_management"
 
-#print "Pulling Gemma3:4b model(may take a while)"
-#ollama pull gemma3:4b
 
 run "mkdir /opt/sicken_reloaded/logs"
 run "touch /opt/sicken_reloaded/logs/sicken-concurrent.log"

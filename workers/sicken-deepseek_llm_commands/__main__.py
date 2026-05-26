@@ -16,7 +16,7 @@ from uuid import uuid4
 from time import time, sleep
 from threading import Thread, Lock
 
-from constants import SYSTEM_MESSAGE, FUNCTIONS, TOOLS,COMMAND_EXECUTE_REQUEST, COMMAND_EXECUTE_ERROR, COMMAND_EXECUTE_FEEDBACK, SPAWN_PROCESS_FEEDBACK, PROCESS_LOOKUP_FEEDBACK, SLEEP_FEEDBACK, CHARACTERS_FEEDBACK, SEARCH_FEEDBACK, SCRAPE_FEEDBACK
+from constants import SYSTEM_MESSAGE, FUNCTIONS, TOOLS,COMMAND_EXECUTE_REQUEST, COMMAND_EXECUTE_ERROR, COMMAND_EXECUTE_FEEDBACK, SPAWN_PROCESS_FEEDBACK, PROCESS_LOOKUP_FEEDBACK, SLEEP_FEEDBACK, CHARACTERS_FEEDBACK, SEARCH_FEEDBACK, SCRAPE_FEEDBACK, X_POST_FEEDBACK
 
 
 class DeepSeek_LLM_Commands:
@@ -403,6 +403,14 @@ class DeepSeek_LLM_Commands:
 					}
 				)
 
+	def _publish_x_post(self, post_content):
+		self._events.event(
+			event_name="publish_x_post",
+			event_data={
+				"post_content": post_content
+				}
+			)
+
 	def _lookup_process(self, process_uuid): 
 		with self._processes_lock:
 			self._processes[process_uuid]["received"]=False
@@ -545,6 +553,20 @@ class DeepSeek_LLM_Commands:
 					}
 				)
 
+		elif func_name=="publish_x_post":
+			self._publish_x_post(
+				post_content=func_args['post_content']
+				)
+			
+			result=X_POST_FEEDBACK.format(post_content=func_args['post_content'])
+
+			self._events.event(
+				event_name="command_feedback",
+				event_data={
+					"message": X_POST_FEEDBACK.format(post_content=func_args['post_content']),
+					"escape": True
+					}
+				)
 		
 		return result
 

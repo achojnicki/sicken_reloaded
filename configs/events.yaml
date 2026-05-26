@@ -128,6 +128,12 @@ sicken-deepseek_llm_commands:
       message_author: message_author
       message: message
       speech: speech
+
+  publish_x_post:
+    sicken-publish_x_post_requests:
+      post_content: post_content
+
+
 #<------>
 sicken-ollama_llm:
   request_responded:

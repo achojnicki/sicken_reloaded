@@ -1,5 +1,5 @@
 agent_server:
-  host: 10.0.0.150
+  host: 10.0.2.1
   port: 9999
   secret: asgafgfadsgdafgrearygtaerhtsaerhsrdhgbsdrgsdgr
 

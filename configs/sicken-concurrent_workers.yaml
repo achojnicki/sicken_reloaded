@@ -36,7 +36,7 @@ sicken-gui:
 
 # Classification mechanism, responsible for memory of Sicken. Basen on OpenAI
 sicken-classification:
-  enable: false
+  enable: true
   workers_count: 5
   uid: 7676
   gid: 7676
@@ -56,6 +56,12 @@ sicken-agent_server:
 
 sicken-web_worker:
   enable: true
+  workers_count: 1
+  uid: 7676
+  gid: 7676
+
+sicken-x_worker:
+  enable: false
   workers_count: 1
   uid: 7676
   gid: 7676

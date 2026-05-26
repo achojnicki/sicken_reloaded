@@ -143,6 +143,20 @@ FUNCTIONS = [
 			"required": ["scrape_url"]
 		}
 	},
+	{
+		"name": "publish_x_post",
+		"description": "Publish a post on a X.com platform on the Sicken.ai's profile",
+		"parameters": {
+			"type": "object",
+			"properties": {
+				"post_content": {
+					"type": "string",
+					"description": "A text to post on X.com"
+				},
+			},
+			"required": ["post_content"]
+		}
+	},
 ]
 
 TOOLS = [
@@ -277,10 +291,29 @@ TOOLS = [
 				"required": ["scrape_url"]
 			}
 		},
+	},	
+	{
+		"type": "function",
+		"function": {
+			"name": "publish_x_post",
+			"description": "Publish a post on a X.com platform on the Sicken.ai's profile",
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"post_content": {
+						"type": "string",
+						"description": "A text to post on X.com"
+					},
+				},
+				"required": ["post_content"]
+			}
+		},
 	},
 
-
 ]
+
+
+X_POST_FEEDBACK="Sicken requested to publish a post on a X.com platform. post_content: {post_content}"
 CHARACTERS_FEEDBACK="""Sent "{characters_string}" characters_string to the process' {process_uuid} terminal"""
 SLEEP_FEEDBACK="Sicken went to sleep for {seconds} seconds."
 COMMAND_EXECUTE_REQUEST="Sicken requested execution of command.\nCommand: {command}"

@@ -76,7 +76,6 @@ class Commands:
 		with open(self._paths('COMMANDS_HELP_FILE'), 'r') as file:
 			self._help_messages=safe_load(file)
 
-		print(self._help_messages)
 
 
 	def _format_args(self, args):

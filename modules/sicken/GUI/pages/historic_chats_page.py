@@ -59,6 +59,7 @@ class Historic_Chats_Page(wx.Panel):
         self._chats_indexes=list(self._chats.keys())
 
         
+        self.choice.Clear()
         for chat in self._chats:
             self.choice.Insert(
                 self._chats[chat]['chat_uuid'],
@@ -81,8 +82,9 @@ class Historic_Chats_Page(wx.Panel):
 
                 if 'reasoning_content' in message and message['reasoning_content']:
                     self.add_sickens_message(message=message['reasoning_content'], callafter=False)
-
-                self.add_sickens_message(message=message['speech'], callafter=False)
+                
+                if 'speech' in message and message['speech']:
+                    self.add_sickens_message(message=message['speech'], callafter=False)
 
             elif message['message_author']=='function':
                 self.add_system_message(pformat(message['message']), esc=True, callafter=False)
@@ -95,6 +97,9 @@ class Historic_Chats_Page(wx.Panel):
 
             else:
                 self.add_user_message(message['message'])
+
+        self.Layout()
+        self.Update()
 
 
     def _on_resume(self, event=None):
@@ -135,7 +140,6 @@ class Historic_Chats_Page(wx.Panel):
 
 
         s='add_sickens_message("{0}");'.format(message)
-        print(s)
         if callafter:
             wx.CallAfter(self.html.RunScript, s)
         else:
@@ -152,7 +156,6 @@ class Historic_Chats_Page(wx.Panel):
         message=message.replace('\n','<br>')
 
         s='add_system_message("{0}");'.format(message)
-        print(s)
         if callafter:
             wx.CallAfter(self.html.RunScript, s)
         else:

@@ -32,7 +32,8 @@ class Chat_Page(wx.Panel):
             style=wx.TE_PROCESS_ENTER
             )
 
-        self._cleanup_button=wx.Button(self, label="remove last\ntool calls")
+        self._cleanup_button=wx.Button(self, label="Fix Tool Calls")
+        self._new_chat_button=wx.Button(self, label="New Chat")
         self._autoscroll_checkbox=wx.CheckBox(self, label='Autoscroll')
         self._autoscroll_checkbox.SetValue(True)
 
@@ -40,6 +41,7 @@ class Chat_Page(wx.Panel):
         self._bottom_bar_sizer=wx.BoxSizer(wx.HORIZONTAL)
         self._bottom_bar_sizer.Add(self._autoscroll_checkbox, 0, wx.EXPAND)
         self._bottom_bar_sizer.AddStretchSpacer(1)
+        self._bottom_bar_sizer.Add(self._new_chat_button, 0, wx.EXPAND)
         self._bottom_bar_sizer.Add(self._cleanup_button, 0, wx.EXPAND)
 
 
@@ -53,12 +55,19 @@ class Chat_Page(wx.Panel):
         self.Bind(wx.EVT_TEXT_ENTER, self.enter_event, self.textctrl)
         self.Bind(wx.EVT_CHECKBOX, self._on_autoscroll_toggle, self._autoscroll_checkbox)
         self.Bind(wx.EVT_BUTTON, self._on_remove_tool_calls, self._cleanup_button)
+        self.Bind(wx.EVT_BUTTON, self._on_new_chat, self._new_chat_button)
         
 
         self._markdown=mistune.create_markdown(plugins=['table','url','task_lists','def_list','mark','superscript','subscript','strikethrough'])
         self.Show(True)
 
 
+
+    def _on_new_chat(self, event=None):
+        s='clean_chat();'
+        self.html.RunScript(s)
+
+        self._root._set_chat_uuid()
 
     def _on_remove_tool_calls(self, event=None):
         chat_uuid=self._root._chat_uuid
@@ -99,7 +108,8 @@ class Chat_Page(wx.Panel):
                 if 'reasoning_content' in message and message['reasoning_content']:
                     self.add_sickens_message(message=message['reasoning_content'], callafter=False)
 
-                self.add_sickens_message(message=message['speech'], callafter=False)
+                if 'speech' in message and message['speech']:
+                    self.add_sickens_message(message=message['speech'], callafter=False)
 
             elif message['message_author']=='function':
                 self.add_system_message(pformat(message['message']), esc=True, callafter=False)
@@ -115,11 +125,15 @@ class Chat_Page(wx.Panel):
 
         self._parent.SetSelection(0)
 
+        self.Layout()
+        self.Update()
+
     def enter_event(self, event):
         msg=self.textctrl.GetValue()
         if msg!='':
             if not self._root._chat_uuid:
                 self._root._set_chat_uuid()
+                self._root._sicken_gui._historic_chats_page._propagate_chats()
 
             self.textctrl.SetValue("")
             self.add_user_message(msg)
@@ -168,7 +182,6 @@ class Chat_Page(wx.Panel):
 
 
         s='add_sickens_message("{0}");'.format(message)
-        print(s)
         if callafter:
             wx.CallAfter(self.html.RunScript, s)
         else:
@@ -176,7 +189,7 @@ class Chat_Page(wx.Panel):
 
     def add_system_message(self, message, esc=True, callafter=True):
         message=message.replace('\r','')
-        message=message.replace('\t','')
+        message=message.replace('\t','\\t')
         
         if esc:
             message=escape(message)
@@ -185,7 +198,6 @@ class Chat_Page(wx.Panel):
         message=message.replace('\n','<br>')
 
         s='add_system_message("{0}");'.format(message)
-        print(s)
         if callafter:
             wx.CallAfter(self.html.RunScript, s)
         else:

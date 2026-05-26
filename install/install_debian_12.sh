@@ -181,7 +181,7 @@ run 'create_queue.py sicken-search_feedback'
 run 'create_queue.py sicken-scrape_requests'
 run 'create_queue.py sicken-scrape_feedback'
 run 'create_queue.py sicken-agent_connected_feedback'
-
+run 'create_queue.py sicken-publish_x_post_requests'
 
 
 

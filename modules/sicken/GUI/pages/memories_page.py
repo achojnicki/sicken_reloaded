@@ -163,7 +163,6 @@ class Memories_Page(wx.Panel):
 		
 		self._profiles_list.DeleteAllItems()
 		
-		print(self._profiles)
 		for profile in self._profiles:
 			self._profiles_list.InsertItem(
 				self._profiles_indexes.index(profile),

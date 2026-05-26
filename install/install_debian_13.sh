@@ -181,36 +181,12 @@ run 'create_queue.py sicken-search_feedback'
 run 'create_queue.py sicken-scrape_requests'
 run 'create_queue.py sicken-scrape_feedback'
 run 'create_queue.py sicken-agent_connected_feedback'
-
+run 'create_queue.py sicken-publish_x_post_requests'
 
 
 print "Enable RabbitMQ Managment plugin"
 run "rabbitmq-plugins enable rabbitmq_management"
 
-#print "Installing Ollama"
-#curl -fsSL https://ollama.com/install.sh | sh
-
-#print "Pulling Gemma3:4b model(may take a while)"
-#ollama pull gemma3:4b
-
-
-#print "Installing Sicken Nginx sites"
-#run "ln -s /opt/adistools/nginx_sites/* /etc/nginx/sites-enabled/"
-
-#print "Restarting NGINX"
-#run "service nginx restart"
-
-#print "Adding adistools service"
-#run "ln -s /opt/adistools/systemd/sicken.service /lib/systemd/system/"
-
-#print "Reloading daemons database"
-#run "systemctl daemon-reload"
-
-#print "Enable adistools service"
-#run "systemctl enable sicken.service"
-
-#print "Start adistools daemon"
-#run "service adistools start"
 
 run "mkdir /opt/sicken_reloaded/logs"
 run "touch /opt/sicken_reloaded/logs/sicken-concurrent.log"
