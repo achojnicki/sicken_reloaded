@@ -13,7 +13,7 @@ from uuid import uuid4
 from time import time
 
 from firecrawl import Firecrawl
-from firecrawl.v2.utils.error_handler import BadRequestError, WebsiteNotSupportedError
+from firecrawl.v2.utils.error_handler import BadRequestError, WebsiteNotSupportedError, InternalServerError
 
 class Web_worker:
 	project_name="sicken-web_worker"
@@ -126,6 +126,18 @@ class Web_worker:
 			self._log.warning(f'Scrapping webpage {message["scrape_url"]} failed. Error message: {str(e.args[0])}')
 
 		except WebsiteNotSupportedError as e:
+			self._events.event(
+				event_name='scrape_feedback',
+				event_data={
+					"scrape_status": "Failed",
+					"scrape_uuid": message['scrape_uuid'],
+					"scrape_url": message['scrape_url'],
+					"scrape_result": None	
+				})
+
+			self._log.warning(f'Scrapping webpage {message["scrape_url"]} failed. Error message: {str(e.args[0])}')
+
+		except InternalServerError as e:
 			self._events.event(
 				event_name='scrape_feedback',
 				event_data={

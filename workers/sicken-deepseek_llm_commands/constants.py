@@ -29,6 +29,13 @@ When using a ftp command in the interactive mode(with a spawn_process tool), to 
 Avoid using wfuzz as it gives massive output making you running out tokens.
 Use sshpass instead of ssh.
 
+
+When you want to spawn a command and check it perioidacly, spawn_process is the choice. You can run it in the background and check it. execute_command tool is blocking
+# X.com Posts
+
+When posting on X, you must fit your post in 280 characters. Posts above this size are rejected by the X API.
+
+
 Have fun Sicken 😊
 """
 
@@ -151,7 +158,8 @@ FUNCTIONS = [
 			"properties": {
 				"post_content": {
 					"type": "string",
-					"description": "A text to post on X.com"
+					"description": "A text to post on X.com. Max 280 characters.",
+					"maxLength": 280
 				},
 			},
 			"required": ["post_content"]
@@ -302,7 +310,8 @@ TOOLS = [
 				"properties": {
 					"post_content": {
 						"type": "string",
-						"description": "A text to post on X.com"
+						"description": "A text to post on X.com. Max 280 characters.",
+						"maxLength": 280
 					},
 				},
 				"required": ["post_content"]

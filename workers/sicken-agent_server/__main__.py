@@ -15,6 +15,8 @@ monkey_patch()
 
 from flask import Flask, render_template, request
 from flask_socketio import SocketIO
+from engineio.payload import Payload
+
 
 import functools
 
@@ -295,9 +297,11 @@ class agent_server:
 
 if __name__=="__main__":
 	app = Flask(__name__)
+	Payload.max_decode_packets = 5000
 	socketio = SocketIO(
 		app,
-		cors_allowed_origins="*"
+		cors_allowed_origins="*",
+		max_http_buffer_size=200 * 1024 * 1024
 		)
 
 	bns=agent_server(app, socketio)

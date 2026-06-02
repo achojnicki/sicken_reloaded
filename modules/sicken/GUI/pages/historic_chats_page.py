@@ -50,7 +50,7 @@ class Historic_Chats_Page(wx.Panel):
         self.Bind(wx.EVT_BUTTON, self._on_resume, self.resume_button)
 
         self._propagate_chats()
-        wx.CallLater(1000, self._on_select)
+        wx.CallLater(2000, self._on_select)
         self.Show(True)
 
 

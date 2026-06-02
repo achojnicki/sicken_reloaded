@@ -315,7 +315,7 @@ class sicken_agent:
 					"stdout": stdout.decode('utf-8', errors="replace"),
 					"stderr": stderr.decode('utf-8', errors="replace"),
 					"status": "Error",
-					"status_description": "Execution of command timeouted."
+					"status_description": "Timeout: Execution of process took too long to finish execution."
 				},
 			namespace="/")
 
