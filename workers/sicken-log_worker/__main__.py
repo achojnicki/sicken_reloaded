@@ -1,5 +1,5 @@
 from sicken.config import Config
-from sicken.events import events
+from sicken.events_redis import events
 
 from pymongo import MongoClient
 from pika import BlockingConnection, ConnectionParameters, PlainCredentials
@@ -56,11 +56,9 @@ class log_worker:
         msg['log_item_uuid'] = log_item_uuid
 
         self._mongo_collection.insert_one(dict(msg))
-        self._rabbitmq_channel.basic_publish(
-            exchange="",
-            routing_key="sicken-gui_logs",
-            body=dumps(msg)
-        )
+        self._events.event(
+            event_name='gui_logs',
+            event_data=msg)
 
     def start(self):
         self._rabbitmq_channel.start_consuming()

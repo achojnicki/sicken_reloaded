@@ -7,6 +7,12 @@ sicken-log_worker:
 
 # Events brooker for Sicken.
 sicken-events:
+  enable: false
+  workers_count: 1
+  uid: 7676
+  gid: 7676
+
+sicken-events_redis:
   enable: true
   workers_count: 1
   uid: 7676
@@ -25,7 +31,12 @@ sicken-deepseek_llm_commands:
   workers_count: 1
   uid: 7676
   gid: 7676
-  
+
+sicken-ollama_llm_commands:
+  enable: false
+  workers_count: 1
+  uid: 7676
+  gid: 7676
 
 # A GUI for Sicken - to be used with Vtube Studio.
 sicken-gui:
@@ -61,7 +72,7 @@ sicken-web_worker:
   gid: 7676
 
 sicken-x_worker:
-  enable: false
+  enable: true
   workers_count: 1
   uid: 7676
   gid: 7676

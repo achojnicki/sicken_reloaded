@@ -133,6 +133,55 @@ sicken-deepseek_llm_commands:
     sicken-publish_x_post_requests:
       post_content: post_content
 
+sicken-ollama_llm_commands:
+  search:
+    sicken-search_requests:
+      search_uuid: search_uuid
+      search_query: search_query
+      search_results_limit: search_results_limit
+
+  scrape:
+    sicken-scrape_requests:
+      scrape_uuid: scrape_uuid
+      scrape_url: scrape_url
+
+  command_feedback:
+    sicken-gui_commands_feedback:
+      message: message
+      escape: escape
+
+  execute_command:
+    sicken-agent_command_execution_requests:
+      command_uuid: command_uuid
+      command: command
+      timeout: timeout
+
+  send_characters:
+    sicken-agent_terminal_characters_requests:
+      process_uuid: process_uuid
+      characters_string: characters_string
+           
+  spawn_process:
+    sicken-agent_spawn_proceses_requests:
+      process_uuid: process_uuid
+      command: command
+
+  lookup_process:
+    sicken-agent_terminal_snapshot_requests:
+      process_uuid: process_uuid
+
+  request_responded:
+    sicken-gui_responses:
+      response_uuid: response_uuid
+      chat_uuid: chat_uuid
+      message_author: message_author
+      message: message
+      speech: speech
+
+  publish_x_post:
+    sicken-publish_x_post_requests:
+      post_content: post_content
+
 
 #<------>
 sicken-ollama_llm:
@@ -182,3 +231,19 @@ sicken-commands:
     sicken-gui_commands_feedback:
       message: message
       escape: escape
+
+sicken-log_worker:
+  gui_logs:
+    sicken-gui_logs:
+      project_name: project_name
+      log_level: log_level
+      message: message
+      strtime: strtime
+      timestamp: timestamp
+      system: system
+      caller: caller
+      app_specific: app_specific
+      exception_data: exception_data
+      log_item_uuid: log_item_uuid
+
+

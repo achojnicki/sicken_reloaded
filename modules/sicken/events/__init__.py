@@ -106,10 +106,12 @@ class events:
 				return
 			
 			except exceptions.StreamLostError:
+				print("Error: Failed to emit an event. retrying")
 				self._log.info('Failed to emit an event. retrying')
 				self._close_rabbitmq_connection()
 
 			attempt+=1
+		print('FATAL: Reached max attempts of event delively')
 		self._log.fatal('Reached max attempts of event delively')
 
 

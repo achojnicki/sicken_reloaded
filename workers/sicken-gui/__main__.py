@@ -1,7 +1,7 @@
 from sicken.config import Config
 from sicken.log import Log
 from sicken.GUI.GUI import Sicken_GUI
-from sicken.events import events
+from sicken.events_redis import events, events_listener
 from sicken.DB import DB
 from sicken.paths import Paths
 
@@ -33,6 +33,8 @@ class Sicken:
 		self._app=wx.App()
 
 		self._events=events(self)
+		self._events_listener=events_listener(self)
+
 		self._db=DB(self)
 		self._paths=Paths()
 
@@ -40,44 +42,10 @@ class Sicken:
 		self._chat_uuid=None
 
 
-		self.rabbitmq_conn = BlockingConnection(
-			ConnectionParameters(
-				host=self._config.rabbitmq.host,
-				port=self._config.rabbitmq.port,
-				credentials=PlainCredentials(
-					self._config.rabbitmq.user,
-					self._config.rabbitmq.password
-				)
-			)
-		)
-
-		self._gui_responses_channel = self.rabbitmq_conn.channel()
-		self._gui_responses_channel.basic_consume(
-			queue='sicken-gui_responses',
-			auto_ack=True,
-			on_message_callback=self._gui_response
-		)
-
-		self._logs_channel=self.rabbitmq_conn.channel()
-		self._logs_channel.basic_consume(
-			queue='sicken-gui_logs',
-			auto_ack=True,
-			on_message_callback=self._logs
-		)
-
-		self._gui_commands_feedback_channel = self.rabbitmq_conn.channel()
-		self._gui_commands_feedback_channel.basic_consume(
-			queue='sicken-gui_commands_feedback',
-			auto_ack=True,
-			on_message_callback=self._command_feedback
-		)
-
-		self._agent_connected_feedback_channel = self.rabbitmq_conn.channel()
-		self._agent_connected_feedback_channel.basic_consume(
-			queue='sicken-agent_connected_feedback',
-			auto_ack=True,
-			on_message_callback=self._agent_connected_feedback
-		)
+		self._events_listener.register_event("sicken-gui_responses", self._gui_response)
+		self._events_listener.register_event("sicken-gui_logs", self._logs)
+		self._events_listener.register_event("sicken-gui_commands_feedback", self._command_feedback)
+		self._events_listener.register_event("sicken-agent_connected_feedback", self._agent_connected_feedback)
 
 		self._exception_warning_showed=False
 		self._log.success('Worker sicken-gui initialised successfully')
@@ -90,24 +58,20 @@ class Sicken:
             chat_created=time()
             )
 
-	def _gui_response(self, channel, method, properties, body):
-		message=loads(body.decode('utf8'))
+	def _gui_response(self, message):
 		if message and message['speech']:
 			self._sicken_gui._chat_page.add_sickens_message(message['speech'])
 
-	def _command_feedback(self, channel, method, properties, body):
-		message=loads(body.decode('utf8'))
+	def _command_feedback(self, message):
 		if message and message['message']:
 			self._sicken_gui._chat_page.add_system_message(message['message'], esc=message['escape'])
 
-	def _agent_connected_feedback(self, channel, method, properties, body):
-		message=loads(body.decode('utf8'))
+	def _agent_connected_feedback(self, message):
 		if message:
 			self._sicken_gui._chat_page.add_system_message(message['status_description'], esc=True)
 
 
-	def _logs(self, channel, method, properties, body):
-		message=loads(body.decode('utf8'))
+	def _logs(self, message):
 		if message:
 			wx.CallAfter(
 				self._sicken_gui._logs_page._add_item,
@@ -119,7 +83,7 @@ class Sicken:
 	def start(self):
 		self._sicken_gui.Show()
 
-		t=Thread(target=self._agent_connected_feedback_channel.start_consuming, args=[])
+		t=Thread(target=self._events_listener.loop, args=[])
 		t.daemon=True
 		t.start()
 

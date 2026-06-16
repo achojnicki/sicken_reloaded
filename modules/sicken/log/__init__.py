@@ -54,7 +54,7 @@ class Log(adislog_methods):
             
 
 
-    def _message(self,log_level:int, log_item, exception_data=None, depth=3):
+    def _message(self,log_level:int, log_item, exception_data=None,app_specific=None, depth=3):
         if log_level >0 or self._debug: 
             time=datetime.now()
 
@@ -90,7 +90,7 @@ class Log(adislog_methods):
                     "cwd": self._probes.cwd,
                 },
                 "caller": self._probes.caller(depth),
-                "app_specific":self._probes.parent,
+                "app_specific": app_specific if app_specific else self._probes.parent,
                 "exception_data": exception_data
 
             }

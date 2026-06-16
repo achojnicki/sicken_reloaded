@@ -1,5 +1,5 @@
 deepseek:
-  api_key: deepseek_api_key
+  api_key: sk-12fc7e55f02f41f7ad548dcb914f18ac
   
 sicken:
   temperature: 0

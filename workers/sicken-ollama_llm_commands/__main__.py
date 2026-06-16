@@ -1,7 +1,7 @@
 from sicken.config import Config
 
 from sicken.log import Log
-from sicken.events_redis import events, events_listener
+from sicken.events import events
 from sicken.DB import DB
 from sicken.memories import Memories
 from sicken.knowledge import Knowledge
@@ -19,8 +19,8 @@ from threading import Thread, Lock
 from constants import SYSTEM_MESSAGE, FUNCTIONS, TOOLS,COMMAND_EXECUTE_REQUEST, COMMAND_EXECUTE_ERROR, COMMAND_EXECUTE_FEEDBACK, SPAWN_PROCESS_FEEDBACK, PROCESS_LOOKUP_FEEDBACK, SLEEP_FEEDBACK, CHARACTERS_FEEDBACK, SEARCH_FEEDBACK, SCRAPE_FEEDBACK, X_POST_FEEDBACK
 
 
-class DeepSeek_LLM_Commands:
-	project_name="sicken-deepseek_llm_commands"
+class Ollama_LLM_Commands:
+	project_name="sicken-ollama_llm_commands"
 
 	def __init__(self):
 		self._config=Config(self)
@@ -34,22 +34,74 @@ class DeepSeek_LLM_Commands:
 			debug=self._config.log.debug,
 			)
 
-		self._log.info('Initialising module sicken-deepseek_llm_commands worker')
+		self._log.info('Initialising module sicken-ollama_commands worker')
+		self._rabbitmq_conn = BlockingConnection(
+			ConnectionParameters(
+				heartbeat=0,
+				host=self._config.rabbitmq.host,
+				port=self._config.rabbitmq.port,
+				credentials=PlainCredentials(
+					self._config.rabbitmq.user,
+					self._config.rabbitmq.password
+				)
+			)
+		)
 
-		self._events=events(self)
-		self._events_listener=events_listener(self)
+		self._threaded_rabbitmq_conn = BlockingConnection(
+			ConnectionParameters(
+				heartbeat=0,
+				host=self._config.rabbitmq.host,
+				port=self._config.rabbitmq.port,
+				credentials=PlainCredentials(
+					self._config.rabbitmq.user,
+					self._config.rabbitmq.password
+				)
+			)
+		)
 
-		self._events_listener.register_event('sicken-response_requests',self._response_request, True)
-		self._events_listener.register_event('sicken-agent_command_execution_response',self._command_handler, True)
-		self._events_listener.register_event('sicken-agent_terminal_snapshot_response',self._snapshot_handler, True)
-		self._events_listener.register_event('sicken-search_feedback',self._search_handler, True)
-		self._events_listener.register_event('sicken-scrape_feedback',self._scrape_handler, True)
+		self._response_requests_channel = self._rabbitmq_conn.channel()
+		self._response_requests_channel.basic_consume(
+			queue='sicken-response_requests',
+			auto_ack=True,
+			on_message_callback=self._response_request
+		)
+		
+
+		self._agent_command_execution_response_channel = self._threaded_rabbitmq_conn.channel()
+		self._agent_command_execution_response_channel.basic_consume(
+			queue='sicken-agent_command_execution_response',
+			auto_ack=True,
+			on_message_callback=self._command_handler
+		)
+
+		self._agent_terminal_snapshot_response_channel = self._threaded_rabbitmq_conn.channel()
+		self._agent_terminal_snapshot_response_channel.basic_consume(
+			queue='sicken-agent_terminal_snapshot_response',
+			auto_ack=True,
+			on_message_callback=self._snapshot_handler
+		)
+
+		self._search_feedback_channel = self._threaded_rabbitmq_conn.channel()
+		self._search_feedback_channel.basic_consume(
+			queue='sicken-search_feedback',
+			auto_ack=True,
+			on_message_callback=self._search_handler
+		)
+
+		self._scrape_feedback_channel = self._threaded_rabbitmq_conn.channel()
+		self._scrape_feedback_channel.basic_consume(
+			queue='sicken-scrape_feedback',
+			auto_ack=True,
+			on_message_callback=self._scrape_handler
+		)
 
 
 		self._db=DB(self)
+		self._events=events(self)
+
 		self._deepseek=OpenAI(
-			api_key=self._config.deepseek.api_key, 
-			base_url="https://api.deepseek.com"
+			api_key=self._config.ollama.api_key, 
+			base_url="http://localhost:11434/v1/"
 			)
 
 		self._memories=Memories(self)
@@ -67,15 +119,14 @@ class DeepSeek_LLM_Commands:
 		self._searches={}
 		self._searches_lock=Lock()
 
+		self._log.success('Worker sicken-ollama_llm_commands initialised successfully')
 
-		self._log.success('Worker sicken-deepseek_llm_commands initialised successfully')
 
-
-	def _scrape_handler(self, message):
+	def _scrape_handler(self, channel, method, properties, body):
+		message=loads(body)
 		scrape_uuid=message['scrape_uuid']
 
-		self._log.success(
-			f'Received a scrape request\'s response. scrape_uuid: {message['scrape_uuid']}, scrape_url:{message['scrape_url']}, scrape_status: {message['scrape_status']}')
+		self._log.success(f'Received a scrape request\'s response. scrape_uuid: {message['scrape_uuid']}, scrape_url:{message['scrape_url']}, scrape_status: {message['scrape_status']}')
 
 		with self._scrapes_lock:
 			if scrape_uuid in self._scrapes:
@@ -87,7 +138,8 @@ class DeepSeek_LLM_Commands:
 
 
 
-	def _search_handler(self, message):
+	def _search_handler(self, channel, method, properties, body):
+		message=loads(body)
 		search_uuid=message['search_uuid']
 
 		self._log.success(f'Received a search request\'s response. search_uuid: {message['search_uuid']}, search_query:{message['search_query']}')
@@ -101,7 +153,8 @@ class DeepSeek_LLM_Commands:
 				self._searches[search_uuid]['search_results']=message['search_results']
 
 
-	def _command_handler(self, message):
+	def _command_handler(self, channel, method, properties, body):
+		message=loads(body)
 		command_uuid=message['command_uuid']
 
 		self._log.success(f'Received a command execution request\'s response. command_uuid: {message['command_uuid']}, status:{message['status']}')
@@ -117,7 +170,8 @@ class DeepSeek_LLM_Commands:
 				self._commands[command_uuid]['status_description']=message['status_description']
 
 
-	def _snapshot_handler(self,message):
+	def _snapshot_handler(self, channel, method, properties, body):
+		message=loads(body)
 		process_uuid=message['process_uuid']
 
 		self._log.success(f'Received a terminal snapshot request\'s response. process_uuid: {message['process_uuid']}')
@@ -148,20 +202,20 @@ class DeepSeek_LLM_Commands:
 						m["content"]=message['speech']
 					else:
 						m["content"]=""
-
 					if "reasoning_content" in message:
 						m["reasoning_content"]=message['reasoning_content']
 					prompt.append(m)
 
 				elif message['message_author'] == 'function':
+					message_json_parsed=dumps(message['message'])
 					m={
-						"role": "tool" if self._config.deepseek.use_tools_calls else "function",
+						"role": "tool" if self._config.ollama.use_tools_calls else "function",
 						"name": message['func_name'],
-						"content": dumps(message['message']),
+						"content": message_json_parsed if message_json_parsed else "",
 					}
 
 						
-					if self._config.deepseek.use_tools_calls:
+					if self._config.ollama.use_tools_calls:
 						m['type']='function_tool_output'
 						m['tool_call_id']=message['call_id']
 
@@ -210,10 +264,10 @@ class DeepSeek_LLM_Commands:
 				"seed":self._config.sicken.seed,
 				"top_p":self._config.sicken.top_p,
 				"top_logprobs":self._config.sicken.top_logprobs,
-				"max_tokens": self._config.deepseek.max_tokens,
+				"max_tokens": self._config.ollama.max_tokens,
 				"messages": prompt,
 			}
-			if self._config.deepseek.use_tools_calls:
+			if self._config.ollama.use_tools_calls:
 				args['tools']=TOOLS
 			else:
 				args['functions']=FUNCTIONS
@@ -517,16 +571,15 @@ class DeepSeek_LLM_Commands:
 		
 		return result
 
-	def _response_request(self, message):
-		print(message)
+	def _response_request(self, channel, method, properties, body):
 		try:		
+			message=loads(body.decode('utf8'))
 			self._log.info(f'Received response request. chat_uuid: {message['chat_uuid']},')
 			
 
 			if message:
 				self._log.debug(message)
 				response_uuid=str(uuid4())
-
 				prompt=self._build_prompt(chat_uuid=message['chat_uuid'],msg=message)
 				while True:
 					self._log.info(prompt)
@@ -536,7 +589,7 @@ class DeepSeek_LLM_Commands:
 					self._log.info(resp)
 
 
-					if hasattr(resp,"reasoning_content") and resp.reasoning_content:
+					if hasattr(resp,"reasoning") and resp.reasoning:
 						self._log.info('reasoning_content found')
 						self._events.event(
 							event_name="request_responded",
@@ -545,17 +598,17 @@ class DeepSeek_LLM_Commands:
 								"chat_uuid": message['chat_uuid'],
 								"message_author":message['message_author'],
 								"message": message['message'],
-								"speech": resp.reasoning_content,
+								"speech": resp.reasoning,
 								}
 							)
 
 					if not resp.function_call and not resp.tool_calls:
 						self._log.info('Not a function or a tool call message')
 						response=resp.content
-						if hasattr(resp, "reasoning_content"):
-							reasoning_content=resp.reasoning_content
+						if hasattr(resp, "reasoning"):
+							reasoning_content=resp.reasoning
 						else:
-							reasoning_content=None
+							reasoning_content=""
 
 						self._db.add_chat_message(
 							chat_uuid=message['chat_uuid'],
@@ -579,19 +632,20 @@ class DeepSeek_LLM_Commands:
 								message_source=None,
 								msg=result,
 								func_name=func_name,
-								reasoning_content=resp.reasoning_content
+								reasoning_content=resp.reasoning
 								)
 						prompt=self._build_prompt(chat_uuid=message['chat_uuid'])
 
 					elif resp.tool_calls:
 						self._log.info('Tool call message')
-						self._db.add_chat_message(
-								chat_uuid=message['chat_uuid'],
-								message_author='tool_calls',
-								message_source=None,
-								tool_calls=resp.dict()['tool_calls'],
-								reasoning_content=resp.reasoning_content if hasattr(resp, 'reasoning_content') else None
-								)
+						if hasattr(resp, "reasoning") and resp.reasoning:
+							self._db.add_chat_message(
+									chat_uuid=message['chat_uuid'],
+									message_author='tool_calls',
+									message_source=None,
+									tool_calls=resp.dict()['tool_calls'],
+									reasoning_content=resp.reasoning
+									)
 
 						for tool_call in resp.tool_calls:
 							func_name=tool_call.function.name
@@ -626,10 +680,16 @@ class DeepSeek_LLM_Commands:
 
 
 	def start(self):
-		self._events_listener.loop()
+		t=Thread(target=self._scrape_feedback_channel.start_consuming, args=[])
+		t.daemon=True
+		t.start()
 
+		self._response_requests_channel.start_consuming()
+
+	def stop(self):
+		self._response_requests_channel.stop_consuming()
 
 
 if __name__=="__main__":
-	DeepSeek_LLM_Commands=DeepSeek_LLM_Commands()
-	DeepSeek_LLM_Commands.start()
+	Ollama_Commands=Ollama_LLM_Commands()
+	Ollama_Commands.start()

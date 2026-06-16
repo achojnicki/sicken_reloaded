@@ -1,24 +1,26 @@
+import traceback
+
 from .constants import LEVEL_DEBUG, LEVEL_INFO, LEVEL_WARNING, LEVEL_FATAL, LEVEL_ERROR, LEVEL_SUCCESS
 import sys
 
 class adislog_methods:
-    def debug(self,*args):
-        self._message(LEVEL_DEBUG,*args)
+    def debug(self, *args, **kwargs):
+        self._message(LEVEL_DEBUG,*args, **kwargs)
     
-    def info(self,*args):
-        self._message(LEVEL_INFO,*args)
+    def info(self, *args, **kwargs):
+        self._message(LEVEL_INFO, *args, **kwargs)
         
-    def warning(self,*args):
-        self._message(LEVEL_WARNING,*args)
+    def warning(self, *args, **kwargs):
+        self._message(LEVEL_WARNING, *args, **kwargs)
     
-    def error(self,*args):
-        self._message(LEVEL_ERROR,*args)
+    def error(self, *args, **kwargs):
+        self._message(LEVEL_ERROR, *args, **kwargs)
     
-    def fatal(self,*args):
-        self._message(LEVEL_FATAL,*args)
+    def fatal(self,*args, **kwargs):
+        self._message(LEVEL_FATAL, *args, **kwargs)
     
-    def success(self,*args):
-        self._message(LEVEL_SUCCESS,*args)
+    def success(self, *args, **kwargs):
+        self._message(LEVEL_SUCCESS, *args, **kwargs)
          
     def exception(self, message, as_fatal=True):
         excpt=self._probes.exception()
@@ -39,7 +41,7 @@ class adislog_methods:
             depth=2
             )
 
-        sys.__excepthook__(ex_type, ex_value, ex_traceback)
+        traceback.print_exception(ex_type, ex_value, ex_traceback)
 
 
         
