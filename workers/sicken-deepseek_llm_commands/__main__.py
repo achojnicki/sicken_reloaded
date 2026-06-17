@@ -201,9 +201,11 @@ class DeepSeek_LLM_Commands:
 					if "speech" in message:
 						m["content"]=message['speech']
 					else:
-						m["content"]=None
+						m["content"]=""
+
 					if "reasoning_content" in message:
 						m["reasoning_content"]=message['reasoning_content']
+						
 					prompt.append(m)
 
 				elif message['message_author'] == 'function':
