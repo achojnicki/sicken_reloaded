@@ -1,0 +1,696 @@
+from sicken.config import Config
+
+from sicken.log import Log
+from sicken.events import events
+from sicken.DB import DB
+from sicken.memories import Memories
+from sicken.knowledge import Knowledge
+from sicken.exceptions import ChatNotFoundException
+
+
+from openai import OpenAI
+from pika import BlockingConnection, PlainCredentials, ConnectionParameters
+from json import loads, dumps
+from pathlib import Path
+from uuid import uuid4
+from time import time, sleep
+from threading import Thread, Lock
+
+from constants import SYSTEM_MESSAGE, FUNCTIONS, TOOLS,COMMAND_EXECUTE_REQUEST, COMMAND_EXECUTE_ERROR, COMMAND_EXECUTE_FEEDBACK, SPAWN_PROCESS_FEEDBACK, PROCESS_LOOKUP_FEEDBACK, SLEEP_FEEDBACK, CHARACTERS_FEEDBACK, SEARCH_FEEDBACK, SCRAPE_FEEDBACK, X_POST_FEEDBACK
+
+
+class LlamaCpp_LLM_Commands:
+	project_name="sicken-llamacpp_llm_commands"
+
+	def __init__(self):
+		self._config=Config(self)
+
+		self._log=Log(
+			parent=self,
+			rabbitmq_host=self._config.rabbitmq.host,
+			rabbitmq_port=self._config.rabbitmq.port,
+			rabbitmq_user=self._config.rabbitmq.user,
+			rabbitmq_passwd=self._config.rabbitmq.password,
+			debug=self._config.log.debug,
+			)
+
+		self._log.info('Initialising module sicken-ollama_commands worker')
+		self._rabbitmq_conn = BlockingConnection(
+			ConnectionParameters(
+				heartbeat=0,
+				host=self._config.rabbitmq.host,
+				port=self._config.rabbitmq.port,
+				credentials=PlainCredentials(
+					self._config.rabbitmq.user,
+					self._config.rabbitmq.password
+				)
+			)
+		)
+
+		self._threaded_rabbitmq_conn = BlockingConnection(
+			ConnectionParameters(
+				heartbeat=0,
+				host=self._config.rabbitmq.host,
+				port=self._config.rabbitmq.port,
+				credentials=PlainCredentials(
+					self._config.rabbitmq.user,
+					self._config.rabbitmq.password
+				)
+			)
+		)
+
+		self._response_requests_channel = self._rabbitmq_conn.channel()
+		self._response_requests_channel.basic_consume(
+			queue='sicken-response_requests',
+			auto_ack=True,
+			on_message_callback=self._response_request
+		)
+		
+
+		self._agent_command_execution_response_channel = self._threaded_rabbitmq_conn.channel()
+		self._agent_command_execution_response_channel.basic_consume(
+			queue='sicken-agent_command_execution_response',
+			auto_ack=True,
+			on_message_callback=self._command_handler
+		)
+
+		self._agent_terminal_snapshot_response_channel = self._threaded_rabbitmq_conn.channel()
+		self._agent_terminal_snapshot_response_channel.basic_consume(
+			queue='sicken-agent_terminal_snapshot_response',
+			auto_ack=True,
+			on_message_callback=self._snapshot_handler
+		)
+
+		self._search_feedback_channel = self._threaded_rabbitmq_conn.channel()
+		self._search_feedback_channel.basic_consume(
+			queue='sicken-search_feedback',
+			auto_ack=True,
+			on_message_callback=self._search_handler
+		)
+
+		self._scrape_feedback_channel = self._threaded_rabbitmq_conn.channel()
+		self._scrape_feedback_channel.basic_consume(
+			queue='sicken-scrape_feedback',
+			auto_ack=True,
+			on_message_callback=self._scrape_handler
+		)
+
+
+		self._db=DB(self)
+		self._events=events(self)
+
+		self._deepseek=OpenAI(
+			api_key=self._config.ollama.api_key, 
+			base_url="http://192.168.1.160:8080/v1/",
+			timeout=3600
+			)
+
+		self._memories=Memories(self)
+		self._knowledge=Knowledge(self)
+
+		self._commands={}
+		self._commands_lock=Lock()
+
+		self._processes={}
+		self._processes_lock=Lock()
+
+		self._scrapes={}
+		self._scrapes_lock=Lock()
+
+		self._searches={}
+		self._searches_lock=Lock()
+
+		self._log.success('Worker sicken-ollama_llm_commands initialised successfully')
+
+
+	def _scrape_handler(self, channel, method, properties, body):
+		message=loads(body)
+		scrape_uuid=message['scrape_uuid']
+
+		self._log.success(f'Received a scrape request\'s response. scrape_uuid: {message['scrape_uuid']}, scrape_url:{message['scrape_url']}, scrape_status: {message['scrape_status']}')
+
+		with self._scrapes_lock:
+			if scrape_uuid in self._scrapes:
+				self._scrapes[scrape_uuid]['received']=True
+				self._scrapes[scrape_uuid]['scrape_uuid']=message['scrape_uuid']
+				self._scrapes[scrape_uuid]['scrape_url']=message['scrape_url']
+				self._scrapes[scrape_uuid]['scrape_status']=message['scrape_status']
+				self._scrapes[scrape_uuid]['scrape_result']=message['scrape_result']
+
+
+
+	def _search_handler(self, channel, method, properties, body):
+		message=loads(body)
+		search_uuid=message['search_uuid']
+
+		self._log.success(f'Received a search request\'s response. search_uuid: {message['search_uuid']}, search_query:{message['search_query']}')
+
+		with self._searches_lock:
+			if search_uuid in self._searches:
+				self._searches[search_uuid]['received']=True
+				self._searches[search_uuid]['search_uuid']=message['search_uuid']
+				self._searches[search_uuid]['search_query']=message['search_query']
+				self._searches[search_uuid]['search_results_limit']=message['search_results_limit']
+				self._searches[search_uuid]['search_results']=message['search_results']
+
+
+	def _command_handler(self, channel, method, properties, body):
+		message=loads(body)
+		command_uuid=message['command_uuid']
+
+		self._log.success(f'Received a command execution request\'s response. command_uuid: {message['command_uuid']}, status:{message['status']}')
+
+
+		with self._commands_lock:
+			if command_uuid in self._commands:
+				self._commands[command_uuid]['executed']=True
+				self._commands[command_uuid]['exit_code']=message['exit_code']
+				self._commands[command_uuid]['stdout']=message['stdout']
+				self._commands[command_uuid]['stderr']=message['stderr']
+				self._commands[command_uuid]['status']=message['status']
+				self._commands[command_uuid]['status_description']=message['status_description']
+
+
+	def _snapshot_handler(self, channel, method, properties, body):
+		message=loads(body)
+		process_uuid=message['process_uuid']
+
+		self._log.success(f'Received a terminal snapshot request\'s response. process_uuid: {message['process_uuid']}')
+
+
+		with self._processes_lock:
+			if process_uuid in self._processes:
+				self._processes[process_uuid]['received']=True
+				self._processes[process_uuid]['terminal_snapshot']=message['terminal_snapshot']
+				
+	def _build_prompt(self,chat_uuid, msg=None):
+		try:
+			prompt=[]
+			prompt.append(
+				{"role": "system", "content": SYSTEM_MESSAGE.replace("<__username__>", self._config.user.admin_username)}
+				)
+
+			previous_messages=self._db.get_chat_messages(
+				chat_uuid=chat_uuid
+				)
+
+
+			for message in previous_messages:
+				del message['chat_uuid']
+				if message['message_author'] == 'Sicken.ai':
+					m={"role": "assistant"}
+					if "speech" in message:
+						m["content"]=message['speech']
+					else:
+						m["content"]=""
+					if "reasoning_content" in message:
+						m["reasoning_content"]=message['reasoning_content']
+					prompt.append(m)
+
+				elif message['message_author'] == 'function':
+					message_json_parsed=dumps(message['message'])
+					m={
+						"role": "tool" if self._config.ollama.use_tools_calls else "function",
+						"name": message['func_name'],
+						"content": message_json_parsed if message_json_parsed else "",
+					}
+
+						
+					if self._config.ollama.use_tools_calls:
+						m['type']='function_tool_output'
+						m['tool_call_id']=message['call_id']
+
+					prompt.append(m)
+
+
+				elif message['message_author']=='tool_calls':
+					m={"role": "assistant", "content": "", "tool_calls": message['tool_calls']}
+
+					if "reasoning_content" in message:
+						m["reasoning_content"]=message['reasoning_content']
+					
+					prompt.append(m)
+
+				else:
+					prompt.append(
+						{"role": "user", "content": dumps(message)}
+						)
+			if msg:
+				msg['memories']=dumps(self._memories._get_user_memories(
+					profile_user_name=msg['message_author'],
+					profile_platform=msg['message_source']))
+				
+				msg['knowledge']=dumps(self._knowledge._get_knowledge())
+
+				self._db.add_chat_message(
+					chat_uuid=msg['chat_uuid'],
+					message_author=msg['message_author'],
+					message_source=msg['message_source'],
+					msg=msg['message']
+					)
+
+				prompt.append({"role": "user", "content": dumps(msg)})
+
+			return prompt
+		except:
+			self._log.exception('Exception ocured in the build_prompt')
+
+
+	def _get_model_response(self, prompt):
+		try:
+			self._log.info('Calling an DeepSeek LLM for response')
+
+			args={
+				"model":self._config.sicken.model,
+				"seed":self._config.sicken.seed,
+				"top_p":self._config.sicken.top_p,
+				"top_logprobs":self._config.sicken.top_logprobs,
+				"max_tokens": self._config.ollama.max_tokens,
+				"messages": prompt,
+			}
+			if self._config.ollama.use_tools_calls:
+				args['tools']=TOOLS
+			else:
+				args['functions']=FUNCTIONS
+				args['function_call']="auto"
+
+			completion=self._deepseek.chat.completions.create(**args)
+			self._log.success('Received response')
+		   
+			resp=completion.choices[0].message
+			return resp
+		except:
+			self._log.exception('Exception occured')
+
+
+	def _execute_command(self, command, timeout): 
+		command_uuid=str(uuid4())
+		with self._commands_lock:
+			self._commands[command_uuid]={
+				"command_uuid": command_uuid,
+				"executed": False,
+				"command": command,
+				"exit_code": None,
+				"stdout": None,
+				"stderr": None,
+				"status": None,
+				"status_description": None,
+				"timeout": timeout
+			}
+
+		self._events.event(
+			event_name="execute_command",
+			event_data={
+				"command_uuid": command_uuid,
+				"command": command,
+				"timeout": timeout
+				}
+			)
+
+		while True:
+			if self._commands[command_uuid]['executed']:
+				break
+
+			sleep(0.1)
+
+		return self._commands[command_uuid]
+
+	def _search(self, search_query, search_results_limit): 
+		search_uuid=str(uuid4())
+		
+		with self._searches_lock:
+			self._searches[search_uuid]={
+				"search_uuid": search_uuid,
+				"received": False,
+				"search_query": search_query,
+				"search_results_limit": search_results_limit,
+				"search_results": None
+			}
+
+		self._events.event(
+			event_name="search",
+			event_data={
+				"search_uuid": search_uuid,
+				"search_query": search_query,
+				"search_results_limit": search_results_limit
+				}
+			)
+
+		while True:
+			if self._searches[search_uuid]['received']:
+				break
+
+			sleep(0.1)
+
+		del self._searches[search_uuid]['received']
+		return self._searches[search_uuid]
+
+	def _scrape(self, scrape_url): 
+		scrape_uuid=str(uuid4())
+		
+		with self._scrapes_lock:
+			self._scrapes[scrape_uuid]={
+				"scrape_uuid": scrape_uuid,
+				"received": False,
+				"scrape_url": scrape_url,
+				"scrape_result": None,
+				"scrape_status": None
+			}
+
+		self._events.event(
+			event_name="scrape",
+			event_data={
+				"scrape_uuid": scrape_uuid,
+				"scrape_url": scrape_url
+				}
+			)
+
+		while True:
+			if self._scrapes[scrape_uuid]['received']:
+				break
+
+			sleep(0.1)
+
+		del self._scrapes[scrape_uuid]['received']
+		return self._scrapes[scrape_uuid]
+
+	def _spawn_process(self, command):
+		process_uuid=str(uuid4())
+
+		with self._processes_lock:
+			self._processes[process_uuid]={
+				"process_uuid": process_uuid,
+				"command": command,
+				"received": False,
+				"terminal_snapshot": None
+			}
+
+		self._events.event(
+			event_name="spawn_process",
+			event_data={
+				"process_uuid": process_uuid,
+				"command": command
+				}
+			)
+		return {"process_uuid": process_uuid}
+
+	def _send_characters(self, characters_string, process_uuid):
+
+		if process_uuid in self._processes:
+			self._events.event(
+				event_name="send_characters",
+				event_data={
+					"process_uuid": process_uuid,
+					"characters_string": characters_string
+					}
+				)
+
+	def _publish_x_post(self, post_content):
+		self._events.event(
+			event_name="publish_x_post",
+			event_data={
+				"post_content": post_content
+				}
+			)
+
+	def _lookup_process(self, process_uuid): 
+		with self._processes_lock:
+			self._processes[process_uuid]["received"]=False
+			self._processes[process_uuid]["terminal_snapshot"]=None 
+
+
+		self._events.event(
+			event_name="lookup_process",
+			event_data={
+				"process_uuid": process_uuid,
+				}
+			)
+
+		while True:
+			if self._processes[process_uuid]['received']:
+				with self._processes_lock:
+					process=self._processes[process_uuid].copy()
+				break
+			print('waiting')
+
+			sleep(0.1)
+
+		if process_uuid in self._processes:
+			with self._processes_lock:
+				self._processes[process_uuid]["received"]=False
+				self._processes[process_uuid]["terminal_snapshot"]=None 
+		return process
+
+	def _exec_function(self, func_name, func_args):
+		if func_name=="execute_command":
+			self._events.event(
+				event_name="command_feedback",
+				event_data={
+					"message": COMMAND_EXECUTE_REQUEST.format(command=func_args['command']),
+					"escape": True
+					}
+				)
+			result=self._execute_command(
+				command=func_args['command'],
+				timeout=func_args['timeout']
+				)
+
+
+			if result['status'] == 'Success':
+				self._events.event(
+					event_name="command_feedback",
+					event_data={
+						"message": COMMAND_EXECUTE_FEEDBACK.format(**result),
+						"escape": True
+						}
+					)
+			else:
+				self._events.event(
+					event_name="command_feedback",
+					event_data={
+						"message": COMMAND_EXECUTE_ERROR.format(status_description=result['status_description']),
+						"escape": True
+						}
+					)
+
+		elif func_name=="spawn_process":
+			result=self._spawn_process(
+				command=func_args['command']
+				)
+
+			self._events.event(
+				event_name="command_feedback",
+				event_data={
+					"message": SPAWN_PROCESS_FEEDBACK.format(command=func_args['command'], **result),
+					"escape": True
+					}
+				)
+
+		elif func_name=="lookup_process":
+			result=self._lookup_process(
+				process_uuid=func_args['process_uuid']
+				)
+
+			self._events.event(
+				event_name="command_feedback",
+				event_data={
+					"message": PROCESS_LOOKUP_FEEDBACK,
+					"escape": True
+					}
+				)
+
+		elif func_name=="sleep":
+			result=SLEEP_FEEDBACK.format(seconds=func_args['seconds'])
+			self._events.event(
+				event_name="command_feedback",
+				event_data={
+					"message": SLEEP_FEEDBACK.format(seconds=func_args['seconds']),
+					"escape": True
+					}
+				)
+
+			sleep(func_args['seconds'])
+
+
+		elif func_name=="send_process_characters":
+			self._send_characters(
+				process_uuid=func_args['process_uuid'],
+				characters_string=func_args['characters_string']
+				)
+
+			result=CHARACTERS_FEEDBACK.format(characters_string=func_args['characters_string'], process_uuid=func_args['process_uuid'])
+			
+			self._events.event(
+				event_name="command_feedback",
+				event_data={
+					"message": CHARACTERS_FEEDBACK.format(characters_string=func_args['characters_string'], process_uuid=func_args['process_uuid']),
+					"escape": True
+					}
+				)
+
+		elif func_name=="search_web":
+			result=self._search(
+				search_query=func_args['search_query'],
+				search_results_limit=func_args['search_results_limit']
+				)
+
+			self._events.event(
+				event_name="command_feedback",
+				event_data={
+					"message": SEARCH_FEEDBACK.format(search_query=func_args['search_query']),
+					"escape": True
+					}
+				)
+		
+		elif func_name=="scrape_webpage":
+			result=self._scrape(
+				scrape_url=func_args['scrape_url']
+				)
+
+			self._events.event(
+				event_name="command_feedback",
+				event_data={
+					"message": SCRAPE_FEEDBACK.format(scrape_url=func_args['scrape_url']),
+					"escape": True
+					}
+				)
+
+		elif func_name=="publish_x_post":
+			self._publish_x_post(
+				post_content=func_args['post_content']
+				)
+			
+			result=X_POST_FEEDBACK.format(post_content=func_args['post_content'])
+
+			self._events.event(
+				event_name="command_feedback",
+				event_data={
+					"message": X_POST_FEEDBACK.format(post_content=func_args['post_content']),
+					"escape": True
+					}
+				)
+		
+		return result
+
+	def _response_request(self, channel, method, properties, body):
+		try:		
+			message=loads(body.decode('utf8'))
+			self._log.info(f'Received response request. chat_uuid: {message['chat_uuid']},')
+			
+
+			if message:
+				self._log.debug(message)
+				response_uuid=str(uuid4())
+				prompt=self._build_prompt(chat_uuid=message['chat_uuid'],msg=message)
+				while True:
+					self._log.info(prompt)
+					resp=self._get_model_response(
+						prompt=prompt
+						)
+					self._log.info(resp)
+
+
+					if hasattr(resp,"reasoning_content") and resp.reasoning_content:
+						self._log.info('reasoning_content found')
+						self._events.event(
+							event_name="request_responded",
+							event_data={
+								"response_uuid": response_uuid,
+								"chat_uuid": message['chat_uuid'],
+								"message_author":message['message_author'],
+								"message": message['message'],
+								"speech": resp.reasoning_content,
+								}
+							)
+
+					if not resp.function_call and not resp.tool_calls:
+						self._log.info('Not a function or a tool call message')
+						response=resp.content
+						if hasattr(resp, "reasoning_content"):
+							reasoning_content=resp.reasoning_content
+						else:
+							reasoning_content=""
+
+						self._db.add_chat_message(
+							chat_uuid=message['chat_uuid'],
+							message_author='Sicken.ai',
+							message_source='DeepSeek',
+							speech=response,
+							reasoning_content=reasoning_content
+							)
+						break
+
+					elif resp.function_call:
+						self._log.info('Function call message')
+						func_name = resp.function_call.name
+						func_args = loads(resp.function_call.arguments)
+
+						result=self._exec_function(func_name, func_args)
+
+						self._db.add_chat_message(
+								chat_uuid=message['chat_uuid'],
+								message_author='function',
+								message_source=None,
+								msg=result,
+								func_name=func_name,
+								reasoning_content=resp.reasoning_content
+								)
+						prompt=self._build_prompt(chat_uuid=message['chat_uuid'])
+
+					elif resp.tool_calls:
+						self._log.info('Tool call message')
+						if hasattr(resp, "reasoning_content") and resp.reasoning_content:
+							self._db.add_chat_message(
+									chat_uuid=message['chat_uuid'],
+									message_author='tool_calls',
+									message_source=None,
+									tool_calls=resp.dict()['tool_calls'],
+									reasoning_content=resp.reasoning_content
+									)
+
+						for tool_call in resp.tool_calls:
+							func_name=tool_call.function.name
+							func_args=loads(tool_call.function.arguments)
+							result=self._exec_function(func_name, func_args)
+
+							self._db.add_chat_message(
+								chat_uuid=message['chat_uuid'],
+								message_author='function',
+								message_source=None,
+								msg=result,
+								func_name=func_name,
+								call_id=tool_call.id,
+
+								)
+						prompt=self._build_prompt(chat_uuid=message['chat_uuid'])
+
+
+				self._events.event(
+					event_name="request_responded",
+					event_data={
+						"response_uuid": response_uuid,
+						"chat_uuid": message['chat_uuid'],
+						"message_author":message['message_author'],
+						"message": message['message'],
+						"speech": response,
+						}
+					)
+				self._log.success('Response request responded successfully')
+		except:
+			self._log.exception('Exception occured')
+
+
+	def start(self):
+		t=Thread(target=self._scrape_feedback_channel.start_consuming, args=[])
+		t.daemon=True
+		t.start()
+
+		self._response_requests_channel.start_consuming()
+
+	def stop(self):
+		self._response_requests_channel.stop_consuming()
+
+
+if __name__=="__main__":
+	Llamacpp_Commands=LlamaCpp_LLM_Commands()
+	Llamacpp_Commands.start()

@@ -33,3 +33,7 @@ COMMANDS_HELP_FILE:
 VIEWS_DIR:
   nt: "C:\\sicken_reloaded\\files\\sicken\\views"
   posix: "/opt/sicken_reloaded/files/sicken/views"
+
+REDIS_CONFIG_FILE:
+  nt: "C:\\sicken_reloaded\\configs\\redis.yaml"
+  posix: /opt/sicken_reloaded/configs/redis.yaml

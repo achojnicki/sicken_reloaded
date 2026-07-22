@@ -106,7 +106,7 @@ class events:
 				return
 			
 			except exceptions.StreamLostError:
-				self._log.info('Failed to emit an event. retrying')
+				self._log.warning('Failed to emit event. retrying')
 				self._close_rabbitmq_connection()
 
 			attempt+=1

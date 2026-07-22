@@ -12,7 +12,9 @@ call rabbitmqctl.bat add_user sicken-events password
 call rabbitmqctl.bat add_user sicken-openai_llm password
 call rabbitmqctl.bat add_user sicken-gui password
 call rabbitmqctl.bat add_user sicken-ollama_llm password
+call rabbitmqctl.bat add_user sicken-llamacpp_llm password
 call rabbitmqctl.bat add_user sicken-deepseek_llm password
+call rabbitmqctl.bat add_user sicken-mistral_llm password
 call rabbitmqctl.bat add_user sicken-grok_llm password
 call rabbitmqctl.bat add_user sicken-classification password
 call rabbitmqctl.bat add_user sicken-commands password
@@ -28,7 +30,9 @@ call rabbitmqctl.bat set_permissions -p / sicken-logs ".*" ".*" ".*"
 call rabbitmqctl.bat set_permissions -p / sicken-events ".*" ".*" ".*"
 call rabbitmqctl.bat set_permissions -p / sicken-openai_llm ".*" ".*" ".*"
 call rabbitmqctl.bat set_permissions -p / sicken-ollama_llm ".*" ".*" ".*"
+call rabbitmqctl.bat set_permissions -p / sicken-llamacpp_llm ".*" ".*" ".*"
 call rabbitmqctl.bat set_permissions -p / sicken-deepseek_llm ".*" ".*" ".*"
+call rabbitmqctl.bat set_permissions -p / sicken-mistral_llm ".*" ".*" ".*"
 call rabbitmqctl.bat set_permissions -p / sicken-grok_llm ".*" ".*" ".*"
 call rabbitmqctl.bat set_permissions -p / sicken-gui ".*" ".*" ".*"
 call rabbitmqctl.bat set_permissions -p / sicken-classification ".*" ".*" ".*"
@@ -41,7 +45,9 @@ call rabbitmqctl.bat set_topic_permissions sicken-logs "" ".*" ".*"
 call rabbitmqctl.bat set_topic_permissions sicken-events "" ".*" ".*"
 call rabbitmqctl.bat set_topic_permissions sicken-openai_llm "" ".*" ".*"
 call rabbitmqctl.bat set_topic_permissions sicken-ollama_llm "" ".*" ".*"
+call rabbitmqctl.bat set_topic_permissions sicken-llamacpp_llm "" ".*" ".*"
 call rabbitmqctl.bat set_topic_permissions sicken-deepseek_llm "" ".*" ".*"
+call rabbitmqctl.bat set_topic_permissions sicken-mistral_llm "" ".*" ".*"
 call rabbitmqctl.bat set_topic_permissions sicken-grok_llm "" ".*" ".*"
 call rabbitmqctl.bat set_topic_permissions sicken-gui "" ".*" ".*"
 call rabbitmqctl.bat set_topic_permissions sicken-classification "" ".*" ".*"

@@ -79,7 +79,7 @@ class Classification:
 
 	def _get_model_response(self, prompt):
 		try:
-			self._log.info('Calling an OpenAi LLM for classification')
+			self._log.info('Calling an DeepSeek LLM for classification')
 			completion=self._openai.chat.completions.create(
 				model=self._config.sicken.model,
 				seed=self._config.sicken.seed,

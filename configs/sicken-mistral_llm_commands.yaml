@@ -1,0 +1,31 @@
+mistral:
+  api_key: mistral_api_key
+  #what type of function calling is being used. Set true to tools calls and false to function calls
+  use_tools_calls: true
+  max_tokens: 20000
+
+user:
+  admin_username: username
+
+sicken:
+  temperature: 1
+  model: mistral-small-2603
+  
+  frequency_penalty: null
+  presence_penalty: null
+  top_p: null
+  top_logprobs: null
+
+log:
+  debug: false
+
+mongo:
+  host: localhost
+  port: 27017
+  db: sicken
+
+rabbitmq:
+  host: localhost
+  port: 5672
+  user: sicken-mistral_llm
+  password: password
